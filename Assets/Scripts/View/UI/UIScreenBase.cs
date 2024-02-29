@@ -6,13 +6,13 @@ namespace TetrisNetwork
     public abstract class UIScreenBase<T> : CachedMonoBehaviour where T : Component
     {
         public const float TIME_TO_TWEEN = 1f;
-        public static T instance;
+        public static T Instance;
 
         protected CanvasGroup mCanvasGroup;
         
         protected virtual void Awake()
         {
-            instance = GetComponent<T>();
+            Instance = GetComponent<T>();
             mCanvasGroup = GetComponent<CanvasGroup>();
         }
 
