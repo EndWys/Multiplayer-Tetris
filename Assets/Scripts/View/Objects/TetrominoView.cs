@@ -8,11 +8,11 @@ namespace TetrisNetwork
     {
         public override string ObjectName => "TetriminoView";
 
-        public bool IsLocked => CurrentTetrimino.IsLocked;
+        public bool IsLocked => CurrentTetromino.IsLocked;
 
         public bool Destroyed;
-        public Tetromino CurrentTetrimino;
-        public Action<TetrominoView> OnDestroyTetrimoView;
+        public Tetromino CurrentTetromino;
+        public Action<TetrominoView> OnDestroyTetrominoView;
         public Pooling<TetrominoBlockView> BlockPool;
 
         private readonly List<TetrominoBlockView> _pieces = new List<TetrominoBlockView>();
@@ -38,20 +38,20 @@ namespace TetrisNetwork
             _rectTransform.offsetMax = Vector2.zero;
         }
 
-        public void InitiateTetrimino(Tetromino tetrimino, bool isPreview = false)
+        public void InitiateTetromino(Tetromino tetrimino, bool isPreview = false)
         {
             var ghostColor = new Color(1, 1, 1, 0.5f);
 
-            CurrentTetrimino = tetrimino;
+            CurrentTetromino = tetrimino;
 
             if (!isPreview)
-                CurrentTetrimino.OnChangePosition = ChangePosition;
+                CurrentTetromino.OnChangePosition = ChangePosition;
             else
                 _rectTransform.SetAsFirstSibling();
 
-            CurrentTetrimino.OnChangeRotation += Draw;
+            CurrentTetromino.OnChangeRotation += Draw;
 
-            _blockColor = (isPreview) ? ghostColor : CurrentTetrimino.Color;
+            _blockColor = (isPreview) ? ghostColor : CurrentTetromino.Color;
             _pieces.ForEach(x => x.SetColor(_blockColor));
 
             ChangePosition();
@@ -76,7 +76,7 @@ namespace TetrisNetwork
             _pieces.RemoveAll(x => x == null);
 
             if (_pieces.Count == 0)
-                OnDestroyTetrimoView.Invoke(this);
+                OnDestroyTetrominoView.Invoke(this);
         }
 
         public void ForcePosition(int x, int y)
@@ -87,13 +87,13 @@ namespace TetrisNetwork
 
         private void ChangePosition()
         {
-            _tetriminoPosition = CurrentTetrimino.CurrentPosition;
+            _tetriminoPosition = CurrentTetromino.CurrentPosition;
             Draw();
         }
 
         private void Draw()
         {
-            var cRot = CurrentTetrimino.BlockPositions[CurrentTetrimino.CurrentRotation];
+            var cRot = CurrentTetromino.BlockPositions[CurrentTetromino.CurrentRotation];
             var currentIndex = 0;
 
             for (int i = 0; i < cRot.Length; i++)
