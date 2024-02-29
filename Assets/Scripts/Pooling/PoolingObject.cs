@@ -6,22 +6,22 @@ using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class PoolingObject : MonoBehaviour, IPooling
+    public class PoolingObject : CachedMonoBehaviour, IPooling
     {
-        public string ObjectName { get { return ""; } }
+        public virtual string ObjectName => "";
 
         public bool IsUsing { get; set; }
 
-        public void OnCollect()
+        public virtual void OnCollect()
         {
             IsUsing = true;
-            gameObject.SetActive(true);
+            CachedGameObject.SetActive(true);
         }
 
-        public void OnRelease()
+        public virtual void OnRelease()
         {
             IsUsing = false;
-            gameObject.SetActive(false);
+            CachedGameObject.SetActive(false);
         }
     }
 }

@@ -20,7 +20,7 @@ namespace TetrisNetwork
         public Action OnChangePosition;
         public Action OnChangeRotation;
 
-        public bool _isLocked;
+        public bool IsLocked;
 
         public string Name { get; private set; }
         public Color Color { get; private set; }
@@ -35,7 +35,7 @@ namespace TetrisNetwork
             set
             {
                 _currentPosition = value;
-                if (OnChangePosition != null && !_isLocked)
+                if (OnChangePosition != null && !IsLocked)
                     OnChangePosition.Invoke();
             }
             get
