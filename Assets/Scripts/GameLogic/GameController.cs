@@ -7,12 +7,14 @@ namespace TetrisNetwork
 {
     public class GameController : CachedMonoBehaviour
     {
+        private const string JSON_PATH = @"SupportFiles/GameSettings";
+
         [SerializeField] GameObject _tetrominoBlockPrefab;
         [SerializeField] Transform _tetrominoParent;
 
         [SerializeField] float timeToStep = 2f;
 
-        //private GameSettings _gameSettings;
+        private GameSettings _gameSettings;
         private GameField _gameField;
         private List<TetrominoView> _tetrominos = new List<TetrominoView>();
 
@@ -46,20 +48,17 @@ namespace TetrisNetwork
                 x.BlockPool = _blockPool;
             };
 
-            //TODO: Use Game Settings
-
             //Checks for the json file
-            //var settingsFile = Resources.Load<TextAsset>(JSON_PATH);
-            //if (settingsFile == null)
-            //    throw new System.Exception(string.Format("GameSettings.json could not be found inside {0}. Create one in Window>GameSettings Creator.", JSON_PATH));
+            var settingsFile = Resources.Load<TextAsset>(JSON_PATH);
+            if (settingsFile == null)
+                throw new System.Exception(string.Format("GameSettings.json could not be found inside {0}. Create one in Window>GameSettings Creator.", JSON_PATH));
 
-            //Loads the GameSettings Json
-            ///var json = settingsFile.text;
-            //mGameSettings = JsonUtility.FromJson<GameSettings>(json);
-            //mGameSettings.CheckValidSettings();
-            //timeToStep = mGameSettings.timeToStep;
+            var json = settingsFile.text;
+            _gameSettings = JsonUtility.FromJson<GameSettings>(json);
+            _gameSettings.CheckValidSettings();
+            timeToStep = _gameSettings.TimeToStep;
 
-            _gameField = new GameField();
+            _gameField = new GameField(_gameSettings);
             _gameField.OnCurrentPieceReachBottom = CreateTetromino;
             _gameField.OnGameOver = SetGameOver;
             _gameField.OnDestroyLine = DestroyLine;

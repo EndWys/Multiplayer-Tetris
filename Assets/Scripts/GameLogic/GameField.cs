@@ -25,12 +25,13 @@ namespace TetrisNetwork
         private int[][] _gameField = new int[WIDTH][];
         private TetrominoSpawner _spawner;
         private Tetromino _currentTetrimino;
-        //private GameSettings _gameSettings;
+        private GameSettings _gameSettings;
 
         //TODO: Use Game Settings
-        //public GameField(GameSettings _gameSettings)
-        public GameField()
+        public GameField(GameSettings gameSettings)
         {
+            _gameSettings = gameSettings;
+
             for (int i = 0; i < WIDTH; i++)
             {
                 _gameField[i] = new int[HEIGHT];
@@ -38,7 +39,7 @@ namespace TetrisNetwork
 
             Restart();
 
-            _spawner = new TetrominoSpawner(true, new List<TetrominoSpecs>(){ Tetromino.TemplateSpec });
+            _spawner = new TetrominoSpawner(gameSettings.ControledRandomMode, gameSettings.Pieces);
         }
 
         public void Restart()
