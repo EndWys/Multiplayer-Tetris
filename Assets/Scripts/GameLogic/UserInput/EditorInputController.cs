@@ -8,7 +8,7 @@ namespace TetrisNetwork
     {
         public bool MakeMoveDown()
         {
-            return Input.GetKeyDown(KeyCode.S);
+            return Input.GetKey(KeyCode.S);
         }
 
         public bool MakeMoveLeft()

@@ -24,7 +24,7 @@ namespace TetrisNetwork
 
         public bool MakeMoveRight()
         {
-           return _inputController.MakeMoveLeft();
+           return _inputController.MakeMoveRight();
         }
 
         public bool MakeRotateLeft()
