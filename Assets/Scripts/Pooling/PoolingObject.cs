@@ -4,21 +4,24 @@ using System.Reflection;
 using TetrisNetwork;
 using UnityEngine;
 
-public class PoolingObject : MonoBehaviour, IPooling
+namespace TetrisNetwork
 {
-    public string ObjectName { get { return ""; } }
-
-    public bool IsUsing { get; set; }
-
-    public void OnCollect()
+    public class PoolingObject : MonoBehaviour, IPooling
     {
-        IsUsing = true;
-        gameObject.SetActive(true);
-    }
+        public string ObjectName { get { return ""; } }
 
-    public void OnRelease()
-    {
-        IsUsing = false;
-        gameObject.SetActive(false);
+        public bool IsUsing { get; set; }
+
+        public void OnCollect()
+        {
+            IsUsing = true;
+            gameObject.SetActive(true);
+        }
+
+        public void OnRelease()
+        {
+            IsUsing = false;
+            gameObject.SetActive(false);
+        }
     }
 }
