@@ -134,10 +134,10 @@ namespace TetrisNetwork
             //Rotate Right
             if (Input.GetKeyDown(KeyCode.RightArrow))
             {
-                if (_gameField.IsPossibleMovement(_currentTetromino.CurrentPosition.x,
-                                                  _currentTetromino.CurrentPosition.y,
-                                                  _currentTetromino,
-                                                  _currentTetromino.NextRotation))
+                if (_gameField.IsPossibleMovement(_currentTetromino,
+                                                  _currentTetromino.NextRotation,
+                                                  _currentTetromino.CurrentPosition.x,
+                                                  _currentTetromino.CurrentPosition.y))
                 {
                     _currentTetromino.CurrentRotation = _currentTetromino.NextRotation;
                     _refreshPreview = true;
@@ -147,10 +147,10 @@ namespace TetrisNetwork
             //Rotate Left
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                if (_gameField.IsPossibleMovement(_currentTetromino.CurrentPosition.x,
-                                                  _currentTetromino.CurrentPosition.y,
-                                                  _currentTetromino,
-                                                  _currentTetromino.PreviousRotation))
+                if (_gameField.IsPossibleMovement(_currentTetromino,
+                                                  _currentTetromino.PreviousRotation,
+                                                  _currentTetromino.CurrentPosition.x,
+                                                  _currentTetromino.CurrentPosition.y))
                 {
                     _currentTetromino.CurrentRotation = _currentTetromino.PreviousRotation;
                     _refreshPreview = true;
@@ -160,10 +160,10 @@ namespace TetrisNetwork
             //Move piece to the left
             if (Input.GetKeyDown(KeyCode.A))
             {
-                if (_gameField.IsPossibleMovement(_currentTetromino.CurrentPosition.x - 1,
-                                                  _currentTetromino.CurrentPosition.y,
-                                                  _currentTetromino,
-                                                  _currentTetromino.CurrentRotation))
+                if (_gameField.IsPossibleMovement(_currentTetromino,
+                                                  _currentTetromino.CurrentRotation,
+                                                  _currentTetromino.CurrentPosition.x - 1,
+                                                  _currentTetromino.CurrentPosition.y))
                 {
                     _currentTetromino.CurrentPosition = new Vector2Int(_currentTetromino.CurrentPosition.x - 1, _currentTetromino.CurrentPosition.y);
                     _refreshPreview = true;
@@ -173,10 +173,10 @@ namespace TetrisNetwork
             //Move piece to the right
             if (Input.GetKeyDown(KeyCode.D))
             {
-                if (_gameField.IsPossibleMovement(_currentTetromino.CurrentPosition.x + 1,
-                                                  _currentTetromino.CurrentPosition.y,
-                                                  _currentTetromino,
-                                                  _currentTetromino.CurrentRotation))
+                if (_gameField.IsPossibleMovement(_currentTetromino,
+                                                  _currentTetromino.CurrentRotation,
+                                                  _currentTetromino.CurrentPosition.x + 1,
+                                                  _currentTetromino.CurrentPosition.y))
                 {
                     _currentTetromino.CurrentPosition = new Vector2Int(_currentTetromino.CurrentPosition.x + 1, _currentTetromino.CurrentPosition.y);
                     _refreshPreview = true;
@@ -187,10 +187,10 @@ namespace TetrisNetwork
             //this is the only input with GetKey instead of GetKeyDown, because most of the time, users want to keep this button pressed and make the piece fall
             if (Input.GetKey(KeyCode.S))
             {
-                if (_gameField.IsPossibleMovement(_currentTetromino.CurrentPosition.x,
-                                                  _currentTetromino.CurrentPosition.y + 1,
-                                                  _currentTetromino,
-                                                  _currentTetromino.CurrentRotation))
+                if (_gameField.IsPossibleMovement(_currentTetromino,
+                                                  _currentTetromino.CurrentRotation,
+                                                  _currentTetromino.CurrentPosition.x,
+                                                  _currentTetromino.CurrentPosition.y + 1))
                 {
                     _currentTetromino.CurrentPosition = new Vector2Int(_currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y + 1);
                 }
@@ -200,10 +200,10 @@ namespace TetrisNetwork
             if (_refreshPreview)
             {
                 var y = _currentTetromino.CurrentPosition.y;
-                while (_gameField.IsPossibleMovement(_currentTetromino.CurrentPosition.x,
-                                                  y,
-                                                  _currentTetromino,
-                                                  _currentTetromino.CurrentRotation))
+                while (_gameField.IsPossibleMovement(_currentTetromino,
+                                                  _currentTetromino.CurrentRotation,
+                                                  _currentTetromino.CurrentPosition.x,
+                                                  y))
                 {
                     y++;
                 }

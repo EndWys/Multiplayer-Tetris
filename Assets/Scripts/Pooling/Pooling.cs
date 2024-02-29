@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class Pooling<T> : List<T> where T : MonoBehaviour, IPooling
+    public class Pooling<T> : List<T> where T : CachedMonoBehaviour, IPooling
     {
         public bool CreateMoreIfNeeded = true;
 
@@ -58,11 +58,11 @@ namespace TetrisNetwork
 
             if (obj == null) return obj;
 
-            obj.transform.SetParent(parent ?? _parent);
+            obj.CachedTransform.SetParent(parent ?? _parent);
             if (localPosition)
-                obj.transform.localPosition = position ?? _startPos;
+                obj.CachedTransform.localPosition = position ?? _startPos;
             else
-                obj.transform.position = position ?? _startPos;
+                obj.CachedTransform.position = position ?? _startPos;
             obj.OnCollect();
 
             return obj;
@@ -87,7 +87,7 @@ namespace TetrisNetwork
         private T CreateObject(Transform parent = null, Vector3? position = null)
         {
             var obj = GameObject.Instantiate(_referenceObject, position ?? _startPos, Quaternion.identity, parent ?? _parent).AddComponent<T>();
-            obj.transform.localPosition = position ?? _startPos;
+            obj.CachedTransform.localPosition = position ?? _startPos;
             obj.name = obj.ObjectName + Count;
 
             if (OnObjectCreationCallBack != null)

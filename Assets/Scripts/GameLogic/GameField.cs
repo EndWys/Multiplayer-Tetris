@@ -69,7 +69,7 @@ namespace TetrisNetwork
             Vector2Int position = _currentTetrimino.CurrentPosition;
             int rotation = _currentTetrimino.CurrentRotation;
 
-            if (IsPossibleMovement(position.x, position.y + 1, _currentTetrimino, rotation))
+            if (IsPossibleMovement(_currentTetrimino, rotation, position.x, position.y + 1))
             {
                 _currentTetrimino.CurrentPosition = new Vector2Int(position.x, position.y + 1);
             }
@@ -88,7 +88,7 @@ namespace TetrisNetwork
             }
         }
 
-        public bool IsPossibleMovement(int x, int y, Tetromino tetromino, int rotation)
+        public bool IsPossibleMovement(Tetromino tetromino, int rotation, int x, int y)
         {
             for (int i1 = x, i2 = 0; i1 < x + Tetromino.BLOCK_AREA; i1++, i2++)
             {

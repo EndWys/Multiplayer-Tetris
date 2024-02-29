@@ -15,19 +15,16 @@ namespace TetrisNetwork
 
         private SpriteRenderer _spriteRenderer;
 
-        //Gets references to the components
         public void Awake()
         {
             _spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
-        //Sets the color of the block
         public void SetColor(Color c)
         {
             _spriteRenderer.color = c;
         }
 
-        //Positioning the block
         public void MoveTo(int x, int y)
         {
             Position = new Vector2Int(x, y);
