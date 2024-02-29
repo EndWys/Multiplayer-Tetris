@@ -14,6 +14,7 @@ namespace TetrisNetwork
         [SerializeField] float timeToStep = 2f;
 
         private GameSettings _gameSettings;
+        private PlayerInput _playerInput;
         private GameField _gameField;
         private List<TetrominoView> _tetrominos = new List<TetrominoView>();
 
@@ -30,6 +31,14 @@ namespace TetrisNetwork
 
         public void Start()
         {
+            _playerInput = new PlayerInput();
+
+#if UNITY_EDITOR
+            _playerInput.SetInputController(new EditorInputController());
+#else
+            _playerInput.SetInputController(new EditorInputController());
+#endif
+
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
 
@@ -132,7 +141,7 @@ namespace TetrisNetwork
             if (_currentTetromino == null) return;
 
             //Rotate Right
-            if (Input.GetKeyDown(KeyCode.RightArrow))
+            if (_playerInput.MakeRotateRight())
             {
                 if (_gameField.IsPossibleMovement(_currentTetromino,
                                                   _currentTetromino.NextRotation,
@@ -145,7 +154,7 @@ namespace TetrisNetwork
             }
 
             //Rotate Left
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            if (_playerInput.MakeRotateLeft())
             {
                 if (_gameField.IsPossibleMovement(_currentTetromino,
                                                   _currentTetromino.PreviousRotation,
@@ -158,7 +167,7 @@ namespace TetrisNetwork
             }
 
             //Move piece to the left
-            if (Input.GetKeyDown(KeyCode.A))
+            if (_playerInput.MakeMoveLeft())
             {
                 if (_gameField.IsPossibleMovement(_currentTetromino,
                                                   _currentTetromino.CurrentRotation,
@@ -171,7 +180,7 @@ namespace TetrisNetwork
             }
 
             //Move piece to the right
-            if (Input.GetKeyDown(KeyCode.D))
+            if (_playerInput.MakeMoveRight())
             {
                 if (_gameField.IsPossibleMovement(_currentTetromino,
                                                   _currentTetromino.CurrentRotation,
@@ -185,7 +194,7 @@ namespace TetrisNetwork
 
             //Make the piece fall faster
             //this is the only input with GetKey instead of GetKeyDown, because most of the time, users want to keep this button pressed and make the piece fall
-            if (Input.GetKey(KeyCode.S))
+            if (_playerInput.MakeMoveDown())
             {
                 if (_gameField.IsPossibleMovement(_currentTetromino,
                                                   _currentTetromino.CurrentRotation,
