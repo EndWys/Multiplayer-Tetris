@@ -73,7 +73,8 @@ namespace TetrisNetwork
 
             if (serPos.Count != BLOCK_ROTATIONS * BLOCK_AREA * BLOCK_AREA)
             {
-                LogLayoutOfPieceExeption();
+                LogGridOfPieceExeption();
+                return;
             }
 
             int position = 0;
@@ -90,7 +91,14 @@ namespace TetrisNetwork
 
                     for (int h = 0; h < BlockPositions[r][w].Length; h++)
                     {
-                        BlockPositions[r][w][h] = specs.SerializedBlockPositions[position++];
+                        if (serPos[position] != (int)SpotState.Empty &&
+                            serPos[position] != (int)SpotState.Filled)
+                        {
+                            LogBlockStateExeption(serPos[position]);
+                            return;
+                        }
+
+                        BlockPositions[r][w][h] = serPos[position++];
                     }
                 }
             }
@@ -106,11 +114,18 @@ namespace TetrisNetwork
             return BlockPositions[rotation][x][y] != 0;
         }
 
-        void LogLayoutOfPieceExeption()
+        void LogGridOfPieceExeption()
         {
             Debug.LogException(new Exception(string.Format(
                            "The layout of piece {0} is wrong. It must have {1} rotations of {2}x{3} grid.",
                             Name, BLOCK_ROTATIONS, BLOCK_AREA, BLOCK_AREA)));
+        }
+
+        void LogBlockStateExeption(int pos)
+        {
+            Debug.LogException(new Exception(string.Format(
+                "The layout of piece {0} is wrong in Json file. It contains '{1}' when only {2}s and {3}s are supported.",
+                Name, pos, (int)SpotState.Empty, (int)SpotState.Filled)));
         }
     }
 }
