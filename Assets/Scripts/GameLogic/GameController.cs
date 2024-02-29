@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SocialPlatforms.Impl;
 
 namespace TetrisNetwork
 {
@@ -27,13 +26,7 @@ namespace TetrisNetwork
         private Pooling<TetrominoBlockView> _blockPool = new Pooling<TetrominoBlockView>();
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
 
-        private Tetromino _currentTetromino
-        {
-            get
-            {
-                return (_tetrominos.Count > 0 && !_tetrominos[_tetrominos.Count - 1].IsLocked) ? _tetrominos[_tetrominos.Count - 1].CurrentTetromino : null;
-            }
-        }
+        private Tetromino _currentTetromino { get; set; } = null;
 
         public void Start()
         {
@@ -48,7 +41,6 @@ namespace TetrisNetwork
                 x.BlockPool = _blockPool;
             };
 
-            //Checks for the json file
             var settingsFile = Resources.Load<TextAsset>(JSON_PATH);
             if (settingsFile == null)
                 throw new System.Exception(string.Format("GameSettings.json could not be found inside {0}. Create one in Window>GameSettings Creator.", JSON_PATH));
@@ -84,24 +76,20 @@ namespace TetrisNetwork
             CreateTetromino();
         }
 
-        //Callback from Playfield to destroy a line in view
         private void DestroyLine(int y)
         {
-            //GameScoreScreen.instance.AddPoints(mGameSettings.pointsByBreakingLine); //TODO: Use Game Settings
-            GameScoreScreen.Instance.AddPoints(10);
+            GameScoreScreen.Instance.AddPoints(_gameSettings.PointsByBreakingLine);
 
             _tetrominos.ForEach(x => x.DestroyLine(y));
             _tetrominos.RemoveAll(x => x.Destroyed == true);
         }
 
-        //Callback from Playfield to show game over in view
         private void SetGameOver()
         {
             _gameIsOver = true;
             GameOverScreen.Instance.ShowScreen();
         }
 
-        //Call to the engine to create a new piece and create a representation of the random piece in view
         private void CreateTetromino()
         {
             if (_currentTetromino != null)
@@ -112,6 +100,8 @@ namespace TetrisNetwork
             tetrominoView.InitiateTetromino(tetromino);
             _tetrominos.Add(tetrominoView);
 
+            _currentTetromino = tetromino;
+
             if (_preview != null)
                 _tetrominoPool.Release(_preview);
 
@@ -120,7 +110,6 @@ namespace TetrisNetwork
             _refreshPreview = true;
         }
 
-        //When all the blocks of a piece is destroyed, we must release ("destroy") it.
         private void DestroyTetromino(TetrominoView obj)
         {
             var index = _tetrominos.FindIndex(x => x == obj);
@@ -128,9 +117,7 @@ namespace TetrisNetwork
             _tetrominos[index].Destroyed = true;
         }
 
-        //Regular Unity Update method
-        //Responsable for counting down and calling Step
-        //Also responsable for gathering users input
+
         public void Update()
         {
             if (_gameIsOver) return;

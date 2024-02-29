@@ -10,11 +10,8 @@ namespace TetrisNetwork
         Empty = 0,
         Filled = 1
     }
-
-
     public class GameField
     {
-
         public const int WIDTH = 10;
         public const int HEIGHT = 22;
 
@@ -27,7 +24,6 @@ namespace TetrisNetwork
         private Tetromino _currentTetrimino;
         private GameSettings _gameSettings;
 
-        //TODO: Use Game Settings
         public GameField(GameSettings gameSettings)
         {
             _gameSettings = gameSettings;
@@ -125,9 +121,10 @@ namespace TetrisNetwork
 
         private void PlaceTetrimino(Tetromino tetromino)
         {
-            for (int i1 = tetromino.CurrentPosition.x, i2 = 0; i1 < tetromino.CurrentPosition.x + Tetromino.BLOCK_AREA; i1++, i2++)
+            var tetrotminoPosition = tetromino.CurrentPosition;
+            for (int i1 = tetrotminoPosition.x, i2 = 0; i1 < tetrotminoPosition.x + Tetromino.BLOCK_AREA; i1++, i2++)
             {
-                for (int j1 = tetromino.CurrentPosition.y, j2 = 0; j1 < tetromino.CurrentPosition.y + Tetromino.BLOCK_AREA; j1++, j2++)
+                for (int j1 = tetrotminoPosition.y, j2 = 0; j1 < tetrotminoPosition.y + Tetromino.BLOCK_AREA; j1++, j2++)
                 {
                     if (tetromino.ValidBlock(tetromino.CurrentRotation, j2, i2) && InBounds(i1, j1))
                     {
@@ -150,7 +147,10 @@ namespace TetrisNetwork
                 int i = 0;
                 while (i < WIDTH)
                 {
-                    if (_gameField[i][j] != (int)SpotState.Filled) break;
+                    if (_gameField[i][j] != (int)SpotState.Filled) 
+                    {
+                        break;
+                    }
                     i++;
                 }
 
@@ -167,6 +167,7 @@ namespace TetrisNetwork
                     _gameField[i][j] = _gameField[i][j - 1];
                 }
             }
+
             OnDestroyLine.Invoke(y);
         }
 
