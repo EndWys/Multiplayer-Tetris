@@ -69,9 +69,11 @@ namespace TetrisNetwork
             Vector2Int position = _currentTetrimino.CurrentPosition;
             int rotation = _currentTetrimino.CurrentRotation;
 
-            if (IsPossibleMovement(_currentTetrimino, rotation, position.x, position.y + 1))
+            var move = new OnFieldMovement(_currentTetrimino, rotation, position.x, position.y + 1);
+
+            if (IsPossibleMovement(move))
             {
-                _currentTetrimino.CurrentPosition = new Vector2Int(position.x, position.y + 1);
+                MakeMove(move);
             }
             else
             {
@@ -88,8 +90,19 @@ namespace TetrisNetwork
             }
         }
 
-        public bool IsPossibleMovement(Tetromino tetromino, int rotation, int x, int y)
+        public void MakeMove(OnFieldMovement movement)
         {
+            movement.Tetromino.CurrentPosition = new Vector2Int(movement.X, movement.Y);
+            movement.Tetromino.CurrentRotation = movement.Rotation;
+        }
+
+        public bool IsPossibleMovement(OnFieldMovement movement)
+        {
+            Tetromino tetromino = movement.Tetromino;
+            int rotation = movement.Rotation;
+            int x = movement.X;
+            int y = movement.Y;
+
             for (int i1 = x, i2 = 0; i1 < x + Tetromino.BLOCK_AREA; i1++, i2++)
             {
                 for (int j1 = y, j2 = 0; j1 < y + Tetromino.BLOCK_AREA; j1++, j2++)
