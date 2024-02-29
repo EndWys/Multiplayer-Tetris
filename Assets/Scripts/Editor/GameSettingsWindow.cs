@@ -9,26 +9,26 @@ namespace TetrisNetwork
 {
     public class GameSettingsWindow : EditorWindow
     {
-        private GUISkin mGuiSkin;
+        private GUISkin _guiSkin;
 
-        private GUIStyle mSelectedStyle;
-        private GUIStyle mNormalStyle;
+        private GUIStyle _selectedStyle;
+        private GUIStyle _normalStyle;
 
-        private GameSettings mGameSettings;
+        private GameSettings _gameSettings;
 
-        private int[][][] mTetrominoLayout;
-        private Vector2Int[] mInitialPosition = new Vector2Int[Tetromino.BLOCK_ROTATIONS];
-        private Color mColor;
-        private string mName;
+        private int[][][] _tetrominoLayout;
+        private Vector2Int[] _initialPosition = new Vector2Int[Tetromino.BLOCK_ROTATIONS];
+        private Color _color;
+        private string _name;
 
-        private float mTimeToStep;
-        private int mPointsByBreakingLine;
-        private bool mControledRandomMode;
+        private float _timeToStep;
+        private int _pointsByBreakingLine;
+        private bool _controledRandomMode;
 
-        private Vector2 mScrollImportedPosition;
-        private Vector2 mScrollPosition;
+        private Vector2 _scrollImportedPosition;
+        private Vector2 _scrollPosition;
 
-        private int mCurrentEditing = -1;
+        private int _currentEditing = -1;
 
         [MenuItem("Window/GameSettings Creator")]
         static void Init()
@@ -39,18 +39,18 @@ namespace TetrisNetwork
 
         private void OnEnable()
         {
-            mCurrentEditing = -1;
-            mTetrominoLayout = GetEmptyLayout();
+            _currentEditing = -1;
+            _tetrominoLayout = GetEmptyLayout();
 
-            mGuiSkin = Resources.Load<GUISkin>("GameSettingsCreatorSkin");
-            mSelectedStyle = mGuiSkin.GetStyle("Selected");
-            mNormalStyle = mGuiSkin.GetStyle("Normal");
+            _guiSkin = Resources.Load<GUISkin>("GameSettingsCreatorSkin");
+            _selectedStyle = _guiSkin.GetStyle("Selected");
+            _normalStyle = _guiSkin.GetStyle("Normal");
         }
 
         void OnGUI()
         {
-            GUI.skin = mGuiSkin;
-            mScrollPosition = GUILayout.BeginScrollView(mScrollPosition, true, true, GUILayout.Width(position.width), GUILayout.Height(position.height));
+            GUI.skin = _guiSkin;
+            _scrollPosition = GUILayout.BeginScrollView(_scrollPosition, true, true, GUILayout.Width(position.width), GUILayout.Height(position.height));
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
@@ -61,79 +61,79 @@ namespace TetrisNetwork
 
             if (GUILayout.Button("CREATE NEW", GUILayout.Width(150), GUILayout.Height(50)))
             {
-                mCurrentEditing = -1;
-                mGameSettings = new GameSettings();
-                mGameSettings.Pieces = new List<TetrominoSpecs>();
+                _currentEditing = -1;
+                _gameSettings = new GameSettings();
+                _gameSettings.Pieces = new List<TetrominoSpecs>();
             }
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
-            if (mGameSettings == null)
+            if (_gameSettings == null)
             {
                 GUILayout.EndScrollView();
                 return;
             }
 
-            mTimeToStep = EditorGUILayout.FloatField("Time between update step", mTimeToStep);
-            if (mTimeToStep < 0.01f) mTimeToStep = 0.01f;
-            mPointsByBreakingLine = EditorGUILayout.IntField("Points by breaking lines", mPointsByBreakingLine);
-            if (mPointsByBreakingLine < 0) mPointsByBreakingLine = 0;
-            mControledRandomMode = EditorGUILayout.ToggleLeft("Controled random mode", mControledRandomMode);
+            _timeToStep = EditorGUILayout.FloatField("Time between update step", _timeToStep);
+            if (_timeToStep < 0.01f) _timeToStep = 0.01f;
+            _pointsByBreakingLine = EditorGUILayout.IntField("Points by breaking lines", _pointsByBreakingLine);
+            if (_pointsByBreakingLine < 0) _pointsByBreakingLine = 0;
+            _controledRandomMode = EditorGUILayout.ToggleLeft("Controled random mode", _controledRandomMode);
 
             GUILayout.Space(20);
             var pieceHeight = 30f;
-            var scrollHeight = Mathf.Clamp(pieceHeight * (2 + mGameSettings.Pieces.Count), 0, pieceHeight * 4);
-            mScrollImportedPosition = GUILayout.BeginScrollView(
-            mScrollImportedPosition, true, true,
+            var scrollHeight = Mathf.Clamp(pieceHeight * (2 + _gameSettings.Pieces.Count), 0, pieceHeight * 4);
+            _scrollImportedPosition = GUILayout.BeginScrollView(
+            _scrollImportedPosition, true, true,
                 GUILayout.Width(position.width - 30),
             GUILayout.Height(scrollHeight));
 
             if (GUILayout.Button("ADD NEW", GUILayout.Width(position.width - 60), GUILayout.Height(pieceHeight)))
             {
-                mScrollImportedPosition = new Vector2(0, scrollHeight);
+                _scrollImportedPosition = new Vector2(0, scrollHeight);
                 BeginEdit(-1, new TetrominoSpecs());
             }
 
-            bool? mFinishedLayout = null;
+            bool? finishedLayout = null;
             int counter = 0;
-            for (int i = 0; i < mGameSettings.Pieces.Count; i++)
+            for (int i = 0; i < _gameSettings.Pieces.Count; i++)
             {
                 if (counter++ == 0)
                 {
                     GUILayout.BeginHorizontal();
-                    mFinishedLayout = false;
+                    finishedLayout = false;
                 }
 
                 var index = i;
-                GUI.color = mGameSettings.Pieces[i].Color;
-                if (GUILayout.Button(mGameSettings.Pieces[i].Name, GUILayout.Width(150), GUILayout.Height(pieceHeight)))
+                GUI.color = _gameSettings.Pieces[i].Color;
+                if (GUILayout.Button(_gameSettings.Pieces[i].Name, GUILayout.Width(150), GUILayout.Height(pieceHeight)))
                 {
-                    BeginEdit(index, mGameSettings.Pieces[i]);
+                    BeginEdit(index, _gameSettings.Pieces[i]);
                 }
 
                 if (counter == 4)
                 {
                     GUILayout.EndHorizontal();
-                    mFinishedLayout = true;
+                    finishedLayout = true;
                     counter = 0;
                 }
             }
 
             GUI.color = Color.white;
 
-            if (mFinishedLayout.HasValue && !mFinishedLayout.Value)
+            if (finishedLayout.HasValue && !finishedLayout.Value)
                 GUILayout.EndHorizontal();
 
             GUILayout.EndScrollView();
 
-            if (mCurrentEditing != -1)
+            if (_currentEditing != -1)
             {
                 GUILayout.Space(30);
-                mName = EditorGUILayout.TextField("Tetromino name", mName);
+                _name = EditorGUILayout.TextField("Tetromino name", _name);
                 GUILayout.Space(10);
-                mColor = EditorGUILayout.ColorField("Tetromino Color", mColor);
-                mColor.a = 1f;
+                _color = EditorGUILayout.ColorField("Tetromino Color", _color);
+                _color.a = 1f;
                 GUILayout.Space(10);
 
                 EditorGUILayout.BeginHorizontal();
@@ -149,10 +149,10 @@ namespace TetrisNetwork
                         EditorGUILayout.BeginHorizontal();
                         for (int l = 0; l < Tetromino.BLOCK_AREA; l++)
                         {
-                            bool active = mTetrominoLayout[j][i][l] == 1;
-                            GUI.color = active ? mColor : Color.white;
-                            if (GUILayout.Button(string.Format("{0},{1}", i, l), active ? mSelectedStyle : mNormalStyle))
-                                mTetrominoLayout[j][i][l] = active ? 0 : 1;
+                            bool active = _tetrominoLayout[j][i][l] == 1;
+                            GUI.color = active ? _color : Color.white;
+                            if (GUILayout.Button(string.Format("{0},{1}", i, l), active ? _selectedStyle : _normalStyle))
+                                _tetrominoLayout[j][i][l] = active ? 0 : 1;
                             GUI.color = Color.white;
                         }
                         EditorGUILayout.EndHorizontal();
@@ -162,9 +162,9 @@ namespace TetrisNetwork
                 }
 
                 EditorGUILayout.BeginHorizontal();
-                for (int i = 0; i < mInitialPosition.Length; i++)
+                for (int i = 0; i < _initialPosition.Length; i++)
                 {
-                    mInitialPosition[i] = EditorGUILayout.Vector2IntField("Init Pos", mInitialPosition[i], GUILayout.Width(position.width / Tetromino.BLOCK_ROTATIONS - 10));
+                    _initialPosition[i] = EditorGUILayout.Vector2IntField("Init Pos", _initialPosition[i], GUILayout.Width(position.width / Tetromino.BLOCK_ROTATIONS - 10));
                 }
 
                 EditorGUILayout.EndHorizontal();
@@ -198,8 +198,8 @@ namespace TetrisNetwork
 
         private void RemoveSelected()
         {
-            mGameSettings.Pieces.RemoveAt(mCurrentEditing);
-            mCurrentEditing = -1;
+            _gameSettings.Pieces.RemoveAt(_currentEditing);
+            _currentEditing = -1;
         }
 
         private void ImportJson()
@@ -208,13 +208,13 @@ namespace TetrisNetwork
             if (path.Length != 0)
             {
                 var json = File.ReadAllText(path);
-                mGameSettings = JsonUtility.FromJson<GameSettings>(json);
+                _gameSettings = JsonUtility.FromJson<GameSettings>(json);
 
-                mTimeToStep = mGameSettings.TimeToStep;
-                mPointsByBreakingLine = mGameSettings.PointsByBreakingLine;
-                mControledRandomMode = mGameSettings.ControledRandomMode;
+                _timeToStep = _gameSettings.TimeToStep;
+                _pointsByBreakingLine = _gameSettings.PointsByBreakingLine;
+                _controledRandomMode = _gameSettings.ControledRandomMode;
                 
-                mCurrentEditing = -1;
+                _currentEditing = -1;
             }
         }
 
@@ -226,14 +226,14 @@ namespace TetrisNetwork
                 specs.Color = Color.white;
                 specs.SerializedBlockPositions = GetSerializableLayout(GetEmptyLayout());
                 specs.InitialPosition = GetInitialPositions();
-                mGameSettings.Pieces.Add(specs);
-                index = mGameSettings.Pieces.Count - 1;
+                _gameSettings.Pieces.Add(specs);
+                index = _gameSettings.Pieces.Count - 1;
             }
 
             GUIUtility.keyboardControl = 0;
             GUIUtility.hotControl = 0;
 
-            mCurrentEditing = index;
+            _currentEditing = index;
 
             var pos = 0;
             var blockPositions = new int[Tetromino.BLOCK_ROTATIONS][][];
@@ -250,22 +250,22 @@ namespace TetrisNetwork
                 }
             }
 
-            mTetrominoLayout = blockPositions;
-            mInitialPosition = specs.InitialPosition;
-            mColor = specs.Color;
-            mName = specs.Name;
+            _tetrominoLayout = blockPositions;
+            _initialPosition = specs.InitialPosition;
+            _color = specs.Color;
+            _name = specs.Name;
         }
 
         private void EndEdit()
         {
-            if (mGameSettings != null)
+            if (_gameSettings != null)
             {
                 var specs = new TetrominoSpecs();
-                specs.Name = mName;
-                specs.Color = mColor;
-                specs.InitialPosition = mInitialPosition;
-                specs.SerializedBlockPositions = GetSerializableLayout(mTetrominoLayout);
-                mGameSettings.Pieces[mCurrentEditing] = specs;
+                specs.Name = _name;
+                specs.Color = _color;
+                specs.InitialPosition = _initialPosition;
+                specs.SerializedBlockPositions = GetSerializableLayout(_tetrominoLayout);
+                _gameSettings.Pieces[_currentEditing] = specs;
             }
         }
 
@@ -273,7 +273,7 @@ namespace TetrisNetwork
         {
             var elements = 0;
             var squaredArea = Tetromino.BLOCK_AREA * Tetromino.BLOCK_AREA;
-            foreach (var piece in mGameSettings.Pieces)
+            foreach (var piece in _gameSettings.Pieces)
             {
                 elements = 0;
                 while (elements * squaredArea < piece.SerializedBlockPositions.Count)
@@ -289,11 +289,11 @@ namespace TetrisNetwork
                     elements++;
                 }
             }
-            mGameSettings.TimeToStep = mTimeToStep;
-            mGameSettings.PointsByBreakingLine = mPointsByBreakingLine;
-            mGameSettings.ControledRandomMode = mControledRandomMode;
+            _gameSettings.TimeToStep = _timeToStep;
+            _gameSettings.PointsByBreakingLine = _pointsByBreakingLine;
+            _gameSettings.ControledRandomMode = _controledRandomMode;
 
-            var json = JsonUtility.ToJson(mGameSettings, true);
+            var json = JsonUtility.ToJson(_gameSettings, true);
             string path = EditorUtility.SaveFilePanel("Save GameSettings Json", "Assets", "GameSettings", "json");
             if (path.Length == 0)
             {
