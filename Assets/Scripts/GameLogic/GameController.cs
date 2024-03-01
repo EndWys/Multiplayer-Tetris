@@ -36,6 +36,8 @@ namespace TetrisNetwork
        
         public void StartGame()
         {
+            Debug.Log("Start Game");
+
             _playerInput.SetInputController();
 
             _playerInput.OnRotateRight = RotateTetrominoRight;

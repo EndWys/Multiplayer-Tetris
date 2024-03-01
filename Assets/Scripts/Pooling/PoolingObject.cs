@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using TetrisNetwork;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -23,6 +24,20 @@ namespace TetrisNetwork
             IsUsing = false;
             CachedGameObject.SetActive(false);
             CachedTransform.localPosition = new Vector3(1000, 1000, 0);
+        }
+
+        public void Spawn()
+        {
+            Debug.Log("Is Host?");
+            GetComponent<NetworkObject>().Spawn(true);
+            //SpawnObjectServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        private void SpawnObjectServerRpc()
+        {
+            Debug.Log("Spawn Object");
+            GetComponent<NetworkObject>().Spawn(true);
         }
     }
 }

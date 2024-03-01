@@ -7,9 +7,9 @@ namespace TetrisNetwork
     {
         bool _serverStarted = false;
         bool isGameStarted = false;
-        int _usersOnMatchCount = 0;
 
-        [SerializeField] GameController _gameController;
+        [SerializeField] GameController _gameController1;
+        [SerializeField] GameController _gameController2;
         private void Start()
         {
             NetworkManager.Singleton.OnServerStarted += () => _serverStarted = true;
@@ -27,9 +27,21 @@ namespace TetrisNetwork
                 if(NetworkManager.Singleton.ConnectedClientsList.Count == 2)
                 {
                     isGameStarted = true;
-                    _gameController.StartGame();
+                    _gameController1.StartGame();
+                    StartGameClientRpc();
                 }
             }
+        }
+
+        [ClientRpc]
+        public void StartGameClientRpc() {
+            Debug.Log("On Client");
+            if (IsHost)
+            {
+                return;
+            }
+            Debug.Log("Game 2 start");
+            _gameController2.StartGame();
         }
     }
 }
