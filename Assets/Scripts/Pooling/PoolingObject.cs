@@ -22,6 +22,7 @@ namespace TetrisNetwork
         {
             IsUsing = false;
             CachedGameObject.SetActive(false);
+            CachedTransform.localPosition = new Vector3(1000, 1000, 0);
         }
     }
 }
