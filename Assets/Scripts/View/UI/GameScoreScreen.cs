@@ -25,7 +25,10 @@ namespace TetrisNetwork
 
         public override void ShowScreen(float timeToTween = 1f)
         {
-            base.ShowScreen(timeToTween);
+            InternalAlphaScreen(timeToTween, 1f, () => {
+                _canvasGroup.interactable = true;
+                _canvasGroup.blocksRaycasts = false;
+            });
             StopCoroutine(WaitAndHide());
             StartCoroutine(WaitAndHide());
         }

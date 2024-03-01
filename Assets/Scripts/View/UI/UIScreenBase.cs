@@ -20,6 +20,7 @@ namespace TetrisNetwork
         {
             InternalAlphaScreen(timeToTween, 1f, () => {
                 _canvasGroup.interactable = true;
+                _canvasGroup.blocksRaycasts = true;
             });
         }
 
@@ -27,6 +28,7 @@ namespace TetrisNetwork
         {
             InternalAlphaScreen(timeToTween, 0f, () => {
                 _canvasGroup.interactable = false;
+                _canvasGroup.blocksRaycasts = false;
             });
         }
 
