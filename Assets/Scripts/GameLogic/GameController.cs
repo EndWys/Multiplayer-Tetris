@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class GameController : CachedMonoBehaviour
+    public class GameController : NetworkBehaviour
     {
         private const string JSON_PATH = @"SupportFiles/GameSettings";
 
         [SerializeField] GameObject _tetrominoBlockPrefab;
+        [SerializeField] GameObject _tetrominoPrefab;
         [SerializeField] Transform _tetrominoParent;
 
         [SerializeField] float timeToStep = 2f;
@@ -24,14 +26,22 @@ namespace TetrisNetwork
         private TetrominoView _preview;
         private bool _refreshPreview;
         private bool _gameIsOver;
+        private bool _isConnected = false;
 
         private Pooling<TetrominoBlockView> _blockPool = new Pooling<TetrominoBlockView>();
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
 
         private Tetromino _currentTetromino { get; set; } = null;
 
-        public void Start()
+
+        private void Start()
         {
+            NetworkManager.Singleton.OnServerStarted += StartGame;
+        }
+
+        public void StartGame()
+        {
+
             _playerInput.SetInputController();
 
             _playerInput.OnRotateRight = RotateTetrominoRight;
@@ -44,7 +54,7 @@ namespace TetrisNetwork
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
 
             _tetrominoPool.CreateMoreIfNeeded = true;
-            _tetrominoPool.Initialize(new GameObject("BlockHolder", typeof(RectTransform)), _tetrominoParent);
+            _tetrominoPool.Initialize(_tetrominoPrefab, _tetrominoParent);
             _tetrominoPool.OnObjectCreationCallBack += x =>
             {
                 x.OnDestroyTetrominoView = DestroyTetromino;
@@ -69,6 +79,8 @@ namespace TetrisNetwork
             GameScoreScreen.Instance.HideScreen();
 
             RestartGame();
+
+            _isConnected = true;
         }
 
         public void RestartGame()
@@ -130,6 +142,8 @@ namespace TetrisNetwork
 
         public void Update()
         {
+            if (!_isConnected) return;
+
             if (_gameIsOver) return;
 
             _timer += Time.deltaTime;
