@@ -10,6 +10,5 @@ namespace TetrisNetwork
         bool IsUsing { get; set; }
         void OnCollect();
         void OnRelease();
-        void Spawn();
     }
 }

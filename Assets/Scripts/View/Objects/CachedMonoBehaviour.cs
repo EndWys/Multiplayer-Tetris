@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class CachedMonoBehaviour : NetworkBehaviour
+    public class CachedMonoBehaviour : MonoBehaviour
     {
         Transform _cachedTransform;
         GameObject _cachedGameObject;

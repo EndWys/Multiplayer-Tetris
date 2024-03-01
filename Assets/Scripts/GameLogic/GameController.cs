@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -35,17 +36,11 @@ namespace TetrisNetwork
 
         private void Start()
         {
-            StartGame();
+            NetworkManager.Singleton.OnServerStarted += StartGame;
         }
-
 
         public void StartGame()
         {
-            Debug.Log("StartGame");
-
-            if (!IsOwner) {
-                _tetrominoParent.position += Vector3.right * 20;
-            }
 
             _playerInput.SetInputController();
 

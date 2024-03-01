@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -120,21 +119,6 @@ namespace TetrisNetwork
         private void MovePiece(TetrominoBlockView block, int x, int y)
         {
             block.MoveTo(x, y);
-        }
-
-        public override void Spawn()
-        {
-            SpawnTetrominoServerRpc();
-        }
-
-        [ServerRpc]
-        private void SpawnTetrominoServerRpc()
-        {
-            Debug.Log("TryToSpawn");
-
-            var o = GetComponent<NetworkObject>();
-
-            o.Spawn();
         }
     }
 }
