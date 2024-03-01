@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TetrisNetwork;
+using Unity.Netcode;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -29,6 +30,21 @@ namespace TetrisNetwork
         {
             Position = new Vector2Int(x, y);
             CachedTransform.localPosition = new Vector3(x, -y, 0);
+        }
+
+        public override void Spawn()
+        {
+            SpawnBlockServerRpc();
+        }
+
+        [ServerRpc]
+        private void SpawnBlockServerRpc()
+        {
+            Debug.Log("TryToSpawn");
+
+            var o = GetComponent<NetworkObject>();
+
+            o.Spawn();
         }
     }
 }

@@ -1,7 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Reflection;
-using TetrisNetwork;
+
+using Unity.Netcode;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -24,5 +22,7 @@ namespace TetrisNetwork
             CachedGameObject.SetActive(false);
             CachedTransform.localPosition = new Vector3(1000, 1000, 0);
         }
+
+        public virtual void Spawn() { }
     }
 }
