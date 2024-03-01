@@ -13,8 +13,9 @@ namespace TetrisNetwork
 
         [SerializeField] float timeToStep = 2f;
 
+        [SerializeField] PlayerInputController _playerInput;
+
         private GameSettings _gameSettings;
-        private PlayerInput _playerInput;
         private GameField _gameField;
         private List<TetrominoView> _tetrominos = new List<TetrominoView>();
 
@@ -31,13 +32,13 @@ namespace TetrisNetwork
 
         public void Start()
         {
-            _playerInput = new PlayerInput();
+            _playerInput.SetInputController();
 
-#if UNITY_EDITOR
-            _playerInput.SetInputController(new EditorInputController());
-#else
-            _playerInput.SetInputController(new EditorInputController());
-#endif
+            _playerInput.OnRotateRight = RotateTetrominoRight;
+            _playerInput.OnRotateLeft = RotateTetrominoLeft;
+            _playerInput.OnMoveLeft = MoveTetrominoLeft;
+            _playerInput.OnMoveRight = MoveTetrominoRight;
+            _playerInput.OnMoveDown = MoveTetrominoDown;
 
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
@@ -140,67 +141,6 @@ namespace TetrisNetwork
 
             if (_currentTetromino == null) return;
 
-
-            if (_playerInput.MakeRotateRight())
-            {
-                var move = new OnFieldMovement(_currentTetromino,_currentTetromino.NextRotation,
-                    _currentTetromino.CurrentPosition.x,_currentTetromino.CurrentPosition.y);
-
-                if (_gameField.IsPossibleMovement(move))
-                {
-                    _gameField.MakeMove(move);
-                    _refreshPreview = true;
-                }
-            }
-
-            if (_playerInput.MakeRotateLeft())
-            {
-                var move = new OnFieldMovement(_currentTetromino,_currentTetromino.PreviousRotation,
-                    _currentTetromino.CurrentPosition.x,_currentTetromino.CurrentPosition.y);
-
-                if (_gameField.IsPossibleMovement(move))
-                {
-                    _gameField.MakeMove(move);
-                    _refreshPreview = true;
-                }
-            }
-
-            if (_playerInput.MakeMoveLeft())
-            {
-                var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
-                    _currentTetromino.CurrentPosition.x - 1, _currentTetromino.CurrentPosition.y);
-
-                if (_gameField.IsPossibleMovement(move))
-                {
-                    _gameField.MakeMove(move);
-                    _refreshPreview = true;
-                }
-            }
-
-            if (_playerInput.MakeMoveRight())
-            {
-                var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
-                    _currentTetromino.CurrentPosition.x + 1, _currentTetromino.CurrentPosition.y);
-
-                if (_gameField.IsPossibleMovement(move))
-                {
-                    _gameField.MakeMove(move);
-                    _refreshPreview = true;
-                }
-            }
-
-            if (_playerInput.MakeMoveDown())
-            {
-                var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
-                    _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y + 1);
-
-                if (_gameField.IsPossibleMovement(move))
-                {
-                    _gameField.MakeMove(move);
-                }
-            }
-
-            //This part is responsable for rendering the preview piece in the right position
             if (_refreshPreview)
             {
                 var move = new OnFieldMovement(_currentTetromino,_currentTetromino.CurrentRotation,
@@ -213,6 +153,75 @@ namespace TetrisNetwork
 
                 _preview.ForcePosition(move.X, move.Y - 1);
                 _refreshPreview = false;
+            }
+        }
+
+        void RotateTetrominoRight()
+        {
+            if (_gameIsOver || _currentTetromino == null) return;
+
+            var move = new OnFieldMovement(_currentTetromino, _currentTetromino.NextRotation,
+                _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y);
+
+            if (_gameField.IsPossibleMovement(move))
+            {
+                _gameField.MakeMove(move);
+                _refreshPreview = true;
+            }
+        }
+
+        void RotateTetrominoLeft()
+        {
+            if (_gameIsOver || _currentTetromino == null) return;
+
+            var move = new OnFieldMovement(_currentTetromino, _currentTetromino.PreviousRotation,
+                _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y);
+
+            if (_gameField.IsPossibleMovement(move))
+            {
+                _gameField.MakeMove(move);
+                _refreshPreview = true;
+            }
+        }
+
+        void MoveTetrominoRight()
+        {
+            if (_gameIsOver || _currentTetromino == null) return;
+
+            var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
+                _currentTetromino.CurrentPosition.x + 1, _currentTetromino.CurrentPosition.y);
+
+            if (_gameField.IsPossibleMovement(move))
+            {
+                _gameField.MakeMove(move);
+                _refreshPreview = true;
+            }
+        }
+
+        void MoveTetrominoLeft()
+        {
+            if (_gameIsOver || _currentTetromino == null) return;
+
+            var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
+                _currentTetromino.CurrentPosition.x - 1, _currentTetromino.CurrentPosition.y);
+
+            if (_gameField.IsPossibleMovement(move))
+            {
+                _gameField.MakeMove(move);
+                _refreshPreview = true;
+            }
+        }
+
+        void MoveTetrominoDown()
+        {
+            if (_gameIsOver || _currentTetromino == null) return;
+
+            var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
+                                _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y + 1);
+
+            if (_gameField.IsPossibleMovement(move))
+            {
+                _gameField.MakeMove(move);
             }
         }
     }
