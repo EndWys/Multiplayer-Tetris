@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -32,16 +33,9 @@ namespace TetrisNetwork
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
 
         private Tetromino _currentTetromino { get; set; } = null;
-
-
-        private void Start()
-        {
-            NetworkManager.Singleton.OnServerStarted += StartGame;
-        }
-
+       
         public void StartGame()
         {
-
             _playerInput.SetInputController();
 
             _playerInput.OnRotateRight = RotateTetrominoRight;
