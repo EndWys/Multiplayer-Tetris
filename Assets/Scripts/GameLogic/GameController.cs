@@ -41,7 +41,7 @@ namespace TetrisNetwork
             Debug.Log("Start Game");
             //_clientId = clientId;
 
-            _playerInput.SetInputController(clientId);
+            _playerInput.SetClientId(clientId);
 
             _playerInput.OnRotateRight = RotateTetrominoRight;
             _playerInput.OnRotateLeft = RotateTetrominoLeft;
@@ -73,9 +73,6 @@ namespace TetrisNetwork
             _gameField.OnCurrentPieceReachBottom = CreateTetromino;
             _gameField.OnGameOver = SetGameOver;
             _gameField.OnDestroyLine = DestroyLine;
-
-            GameOverScreen.Instance.HideScreen(0f);
-            GameScoreScreen.Instance.HideScreen();
 
             RestartGame();
 

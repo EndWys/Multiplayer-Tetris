@@ -20,6 +20,11 @@ namespace TetrisNetwork
 
         int _clientId;
 
+        private void Awake()
+        {
+            SetInputController();
+        }
+
         [ServerRpc(RequireOwnership = false)]
         public void MakeMoveDownServerRpc(int clientId)
         {
@@ -55,19 +60,25 @@ namespace TetrisNetwork
             OnRotateRight.Invoke();
         }
 
-        public void SetInputController(int clientId)
+        public void SetClientId(int clientId)
         {
             Debug.Log("InputControllerId - " + clientId);
             _clientId = clientId;
+        }
+
+        public void SetInputController()
+        {
 
 #if UNITY_EDITOR
             _inputController = _editroGameInput;
 #else
             _inputController = _editroGameInput;
 #endif
-            ConnectInputSystem();
 
             _inputController.Initialize();
+
+            ConnectInputSystem();
+
         }
 
         public void ConnectInputSystem()

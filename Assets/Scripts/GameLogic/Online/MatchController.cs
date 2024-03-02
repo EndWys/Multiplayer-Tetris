@@ -45,9 +45,13 @@ namespace TetrisNetwork
 
             if(NetworkManager.LocalClientId == 0)
             {
+                GameOverScreen.Instance.HideScreen(0f);
+                GameScoreScreen.Instance.HideScreen();
                 StartFirstPlayerServerRpc((int)NetworkManager.LocalClientId);
             } else if(NetworkManager.LocalClientId == 1)
             {
+                GameOverScreen.Instance.HideScreen(0f);
+                GameScoreScreen.Instance.HideScreen();
                 StartSecondPlayerServerRpc((int)NetworkManager.LocalClientId);
             }
         }
