@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -10,62 +11,80 @@ namespace TetrisNetwork
         public static MatchController Instance => _instance;
 
         private bool _serverStarted = false;
-        private bool isGameStarted = false;
+        private bool _isGameStarted = false;
 
-        [SerializeField] GameController _gameController1;
-        [SerializeField] GameController _gameController2;
+        [SerializeField] List<GameController> _gameControllers;
+
         private void Start()
         {
             _instance = this;
 
             NetworkManager.Singleton.OnServerStarted += () => _serverStarted = true;
+
+            GameOverScreen.Instance.HideScreen(0f);
+            GameScoreScreen.Instance.HideScreen();
         }
 
         private void Update()
         {
-            if (isGameStarted)
+            WaitForMatchReadyToStart();
+        }
+
+        void WaitForMatchReadyToStart()
+        {
+            if (_isGameStarted)
             {
                 return;
             }
 
             if (_serverStarted)
             {
-                if(NetworkManager.Singleton.ConnectedClientsList.Count == 2)
+                if (NetworkManager.Singleton.ConnectedClientsList.Count == 2)
                 {
-                    isGameStarted = true;
-                    StartGameClientRpc();
+                    _isGameStarted = true;
+                    StartMatchClientRpc();
                 }
             }
         }
 
+        public void StartMatch()
+        {
+            StartGameServerRpc((int)NetworkManager.LocalClientId);
+        }
+
         [ClientRpc]
-        public void StartGameClientRpc() {
-            Debug.Log("On Client");
-            Debug.Log("Client Id - " + NetworkManager.LocalClientId);
-
-            if(NetworkManager.LocalClientId == 0)
-            {
-                GameOverScreen.Instance.HideScreen(0f);
-                GameScoreScreen.Instance.HideScreen();
-                StartFirstPlayerServerRpc((int)NetworkManager.LocalClientId);
-            } else if(NetworkManager.LocalClientId == 1)
-            {
-                GameOverScreen.Instance.HideScreen(0f);
-                GameScoreScreen.Instance.HideScreen();
-                StartSecondPlayerServerRpc((int)NetworkManager.LocalClientId);
-            }
+        public void StartMatchClientRpc() {
+            StartGameServerRpc((int)NetworkManager.LocalClientId);
         }
 
 
         [ServerRpc(RequireOwnership = false)]
-        private void StartFirstPlayerServerRpc(int clientId)
+        private void StartGameServerRpc(int clientId)
         {
-            _gameController1.StartGame(clientId);
+            _gameControllers[clientId].StartGame(clientId);
         }
-        [ServerRpc(RequireOwnership = false)]
-        private void StartSecondPlayerServerRpc(int clientId)
+
+        [ClientRpc]
+        public void AddPointsClientRpc(int value)
         {
-            _gameController2.StartGame(clientId);
+            GameScoreScreen.Instance.AddPoints(value);
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void OnGameOverServerRpc()
+        {
+            foreach(var player in _gameControllers) { player.SetGameOver(); }
+        }
+
+        public void CallRestart()
+        {
+            RestartGameServerRpc();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void RestartGameServerRpc()
+        {
+            foreach (var player in _gameControllers) { player.RestartGame(); }
         }
     }
 }
