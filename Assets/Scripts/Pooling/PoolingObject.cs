@@ -28,15 +28,7 @@ namespace TetrisNetwork
 
         public void Spawn()
         {
-            MatchController.Instance.SpawnObject(this);
-
-            try
-            {
-                Debug.Log("Is Host?");
-                //GetComponent<NetworkObject>().Spawn(true);
-                //SpawnObjectServerRpc();
-            }
-            catch { }
+            GetComponent<NetworkObject>().Spawn(true);
         }
     }
 }

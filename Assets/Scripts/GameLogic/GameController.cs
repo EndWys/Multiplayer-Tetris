@@ -33,12 +33,15 @@ namespace TetrisNetwork
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
 
         private Tetromino _currentTetromino { get; set; } = null;
+
+        //int _clientId;
        
-        public void StartGame()
+        public void StartGame(int clientId)
         {
             Debug.Log("Start Game");
+            //_clientId = clientId;
 
-            _playerInput.SetInputController();
+            _playerInput.SetInputController(clientId);
 
             _playerInput.OnRotateRight = RotateTetrominoRight;
             _playerInput.OnRotateLeft = RotateTetrominoLeft;

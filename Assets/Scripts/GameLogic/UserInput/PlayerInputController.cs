@@ -1,10 +1,11 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Windows;
 
 namespace TetrisNetwork
 {
-    public class PlayerInputController : MonoBehaviour
+    public class PlayerInputController : NetworkBehaviour
     {
         [SerializeField] EditorGameInput _editroGameInput;
         [SerializeField] BuildGameInput _buildGameInput;
@@ -17,33 +18,48 @@ namespace TetrisNetwork
 
         IGameInput _inputController;
 
-        public void MakeMoveDown()
+        int _clientId;
+
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeMoveDownServerRpc(int clientId)
         {
+            if (!ValidateClient(clientId)) return;
             OnMoveDown?.Invoke();
         }
 
-        public void MakeMoveLeft()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeMoveLeftServerRpc(int clientId)
         {
+            if (!ValidateClient(clientId)) return;
             OnMoveLeft?.Invoke();
         }
 
-        public void MakeMoveRight()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeMoveRightServerRpc(int clientId)
         {
-           OnMoveRight?.Invoke();
+            if (!ValidateClient(clientId)) return;
+            OnMoveRight?.Invoke();
         }
 
-        public void MakeRotateLeft()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeRotateLeftServerRpc(int clientId)
         {
+            if (!ValidateClient(clientId)) return;
             OnRotateLeft.Invoke();
         }
 
-        public void MakeRotateRight()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeRotateRightServerRpc(int clientId)
         {
+            if (!ValidateClient(clientId)) return;
             OnRotateRight.Invoke();
         }
 
-        public void SetInputController()
+        public void SetInputController(int clientId)
         {
+            Debug.Log("InputControllerId - " + clientId);
+            _clientId = clientId;
+
 #if UNITY_EDITOR
             _inputController = _editroGameInput;
 #else
@@ -56,11 +72,16 @@ namespace TetrisNetwork
 
         public void ConnectInputSystem()
         {
-            _inputController.OnMoveLeft = MakeMoveLeft;
-            _inputController.OnMoveRight = MakeMoveRight;
-            _inputController.OnRotateRight = MakeRotateRight;
-            _inputController.OnRotateLeft = MakeRotateLeft;
-            _inputController.OnMoveDown = MakeMoveDown;
+            _inputController.OnMoveLeft = () => MakeMoveLeftServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnMoveRight = () => MakeMoveRightServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnRotateRight = () => MakeRotateRightServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnRotateLeft = () => MakeRotateLeftServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnMoveDown = () => MakeMoveDownServerRpc((int)NetworkManager.LocalClientId);
+        }
+
+        bool ValidateClient(int idFromRpc)
+        {
+            return idFromRpc == _clientId;
         }
     }
 }

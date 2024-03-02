@@ -45,26 +45,23 @@ namespace TetrisNetwork
 
             if(NetworkManager.LocalClientId == 0)
             {
-                _gameController1.StartGame();
+                StartFirstPlayerServerRpc((int)NetworkManager.LocalClientId);
             } else if(NetworkManager.LocalClientId == 1)
             {
-                _gameController2.StartGame();
+                StartSecondPlayerServerRpc((int)NetworkManager.LocalClientId);
             }
         }
 
-        PoolingObject _objectToSpawn;
-
-        public void SpawnObject(PoolingObject spawnObj)
-        {
-            _objectToSpawn = spawnObj;
-            SpawnObjectServerRpc();
-        }
 
         [ServerRpc(RequireOwnership = false)]
-        private void SpawnObjectServerRpc()
+        private void StartFirstPlayerServerRpc(int clientId)
         {
-            Debug.Log("Spawn Object");
-            _objectToSpawn.GetComponent<NetworkObject>().Spawn(true);
+            _gameController1.StartGame(clientId);
+        }
+        [ServerRpc(RequireOwnership = false)]
+        private void StartSecondPlayerServerRpc(int clientId)
+        {
+            _gameController2.StartGame(clientId);
         }
     }
 }
