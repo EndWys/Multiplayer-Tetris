@@ -28,16 +28,15 @@ namespace TetrisNetwork
 
         public void Spawn()
         {
-            Debug.Log("Is Host?");
-            GetComponent<NetworkObject>().Spawn(true);
-            //SpawnObjectServerRpc();
-        }
+            MatchController.Instance.SpawnObject(this);
 
-        [ServerRpc(RequireOwnership = false)]
-        private void SpawnObjectServerRpc()
-        {
-            Debug.Log("Spawn Object");
-            GetComponent<NetworkObject>().Spawn(true);
+            try
+            {
+                Debug.Log("Is Host?");
+                //GetComponent<NetworkObject>().Spawn(true);
+                //SpawnObjectServerRpc();
+            }
+            catch { }
         }
     }
 }
