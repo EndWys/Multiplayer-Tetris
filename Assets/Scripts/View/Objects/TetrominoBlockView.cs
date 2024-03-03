@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TetrisNetwork;
+using Unity.Netcode;
 using UnityEngine;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
@@ -21,6 +22,12 @@ namespace TetrisNetwork
         }
 
         public void SetColor(Color c)
+        {
+            SetColorClientRpc(c);
+        }
+
+        [ClientRpc]
+        public void SetColorClientRpc(Color c)
         {
             _spriteRenderer.color = c;
         }

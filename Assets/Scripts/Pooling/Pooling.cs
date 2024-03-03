@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TetrisNetwork;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -86,7 +87,8 @@ namespace TetrisNetwork
 
         private T CreateObject(Transform parent = null, Vector3? position = null)
         {
-            var obj = GameObject.Instantiate(_referenceObject, position ?? _startPos, Quaternion.identity, parent ?? _parent).AddComponent<T>();
+            var obj = GameObject.Instantiate(_referenceObject, position ?? _startPos, Quaternion.identity, parent ?? _parent).GetComponent<T>();
+            obj.Spawn();
             obj.CachedTransform.localPosition = position ?? _startPos;
             obj.name = obj.ObjectName + Count;
 

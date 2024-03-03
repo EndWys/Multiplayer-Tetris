@@ -1,10 +1,11 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Windows;
 
 namespace TetrisNetwork
 {
-    public class PlayerInputController : MonoBehaviour
+    public class PlayerInputController : NetworkBehaviour
     {
         [SerializeField] EditorGameInput _editroGameInput;
         [SerializeField] BuildGameInput _buildGameInput;
@@ -15,52 +16,82 @@ namespace TetrisNetwork
         public Action OnRotateLeft;
         public Action OnRotateRight;
 
-        IGameInput _inputController;
+        private IGameInput _inputController;
 
-        public void MakeMoveDown()
+        private int _clientId;
+
+        private void Awake()
         {
+            SetInputController();
+        }
+
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeMoveDownServerRpc(int clientId)
+        {
+            if (!ValidateClient(clientId)) return;
             OnMoveDown?.Invoke();
         }
 
-        public void MakeMoveLeft()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeMoveLeftServerRpc(int clientId)
         {
+            if (!ValidateClient(clientId)) return;
             OnMoveLeft?.Invoke();
         }
 
-        public void MakeMoveRight()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeMoveRightServerRpc(int clientId)
         {
-           OnMoveRight?.Invoke();
+            if (!ValidateClient(clientId)) return;
+            OnMoveRight?.Invoke();
         }
 
-        public void MakeRotateLeft()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeRotateLeftServerRpc(int clientId)
         {
+            if (!ValidateClient(clientId)) return;
             OnRotateLeft.Invoke();
         }
 
-        public void MakeRotateRight()
+        [ServerRpc(RequireOwnership = false)]
+        public void MakeRotateRightServerRpc(int clientId)
         {
+            if (!ValidateClient(clientId)) return;
             OnRotateRight.Invoke();
+        }
+
+        public void SetClientId(int clientId)
+        {
+            _clientId = clientId;
         }
 
         public void SetInputController()
         {
+
 #if UNITY_EDITOR
             _inputController = _editroGameInput;
 #else
-            _inputController = _buildGameInput;
+            _inputController = _editroGameInput;
 #endif
-            ConnectInputSystem();
 
             _inputController.Initialize();
+
+            ConnectInputSystem();
+
         }
 
         public void ConnectInputSystem()
         {
-            _inputController.OnMoveLeft = MakeMoveLeft;
-            _inputController.OnMoveRight = MakeMoveRight;
-            _inputController.OnRotateRight = MakeRotateRight;
-            _inputController.OnRotateLeft = MakeRotateLeft;
-            _inputController.OnMoveDown = MakeMoveDown;
+            _inputController.OnMoveLeft = () => MakeMoveLeftServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnMoveRight = () => MakeMoveRightServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnRotateRight = () => MakeRotateRightServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnRotateLeft = () => MakeRotateLeftServerRpc((int)NetworkManager.LocalClientId);
+            _inputController.OnMoveDown = () => MakeMoveDownServerRpc((int)NetworkManager.LocalClientId);
+        }
+
+        bool ValidateClient(int idFromRpc)
+        {
+            return idFromRpc == _clientId;
         }
     }
 }

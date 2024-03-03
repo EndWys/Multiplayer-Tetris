@@ -1,14 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class GameController : CachedMonoBehaviour
+    public class GameController : NetworkBehaviour
     {
         private const string JSON_PATH = @"SupportFiles/GameSettings";
 
         [SerializeField] GameObject _tetrominoBlockPrefab;
+        [SerializeField] GameObject _tetrominoPrefab;
         [SerializeField] Transform _tetrominoParent;
 
         [SerializeField] float timeToStep = 2f;
@@ -24,15 +27,20 @@ namespace TetrisNetwork
         private TetrominoView _preview;
         private bool _refreshPreview;
         private bool _gameIsOver;
+        private bool _isConnected = false;
 
         private Pooling<TetrominoBlockView> _blockPool = new Pooling<TetrominoBlockView>();
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
 
         private Tetromino _currentTetromino { get; set; } = null;
 
-        public void Start()
+        private int _clientId;
+       
+        public void StartGame(int clientId)
         {
-            _playerInput.SetInputController();
+            _clientId = clientId;
+
+            _playerInput.SetClientId(clientId);
 
             _playerInput.OnRotateRight = RotateTetrominoRight;
             _playerInput.OnRotateLeft = RotateTetrominoLeft;
@@ -44,7 +52,7 @@ namespace TetrisNetwork
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
 
             _tetrominoPool.CreateMoreIfNeeded = true;
-            _tetrominoPool.Initialize(new GameObject("BlockHolder", typeof(RectTransform)), _tetrominoParent);
+            _tetrominoPool.Initialize(_tetrominoPrefab, _tetrominoParent);
             _tetrominoPool.OnObjectCreationCallBack += x =>
             {
                 x.OnDestroyTetrominoView = DestroyTetromino;
@@ -62,20 +70,16 @@ namespace TetrisNetwork
 
             _gameField = new GameField(_gameSettings);
             _gameField.OnCurrentPieceReachBottom = CreateTetromino;
-            _gameField.OnGameOver = SetGameOver;
+            _gameField.OnGameOver = OnGameOver;
             _gameField.OnDestroyLine = DestroyLine;
 
-            GameOverScreen.Instance.HideScreen(0f);
-            GameScoreScreen.Instance.HideScreen();
-
             RestartGame();
+
+            _isConnected = true;
         }
 
         public void RestartGame()
         {
-            GameOverScreen.Instance.HideScreen();
-            GameScoreScreen.Instance.ResetScore();
-
             _gameIsOver = false;
             _timer = 0f;
 
@@ -88,16 +92,22 @@ namespace TetrisNetwork
 
         private void DestroyLine(int y)
         {
-            GameScoreScreen.Instance.AddPoints(_gameSettings.PointsByBreakingLine);
+            MatchController.Instance.AddPointsClientRpc(_gameSettings.PointsByBreakingLine, _clientId);
 
             _tetrominos.ForEach(x => x.DestroyLine(y));
             _tetrominos.RemoveAll(x => x.Destroyed == true);
         }
 
-        private void SetGameOver()
+        
+        private void OnGameOver()
+        {
+            MatchController.Instance.OnGameOverServerRpc();
+            MatchController.Instance.OnGameOverClientRpc(_clientId);
+        }
+
+        public void SetGameOver()
         {
             _gameIsOver = true;
-            GameOverScreen.Instance.ShowScreen();
         }
 
         private void CreateTetromino()
@@ -127,9 +137,10 @@ namespace TetrisNetwork
             _tetrominos[index].Destroyed = true;
         }
 
-
         public void Update()
         {
+            if (!_isConnected) return;
+
             if (_gameIsOver) return;
 
             _timer += Time.deltaTime;

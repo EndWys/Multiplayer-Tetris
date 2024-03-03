@@ -10,6 +10,12 @@ namespace TetrisNetwork
 
         private int _internalPoints = 0;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            ResetScore();
+        }
+
         public void AddPoints(int points)
         {
             _internalPoints += points;
