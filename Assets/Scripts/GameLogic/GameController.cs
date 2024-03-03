@@ -33,9 +33,13 @@ namespace TetrisNetwork
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
 
         private Tetromino _currentTetromino { get; set; } = null;
+
+        private int _clientId;
        
         public void StartGame(int clientId)
         {
+            _clientId = clientId;
+
             _playerInput.SetClientId(clientId);
 
             _playerInput.OnRotateRight = RotateTetrominoRight;
@@ -76,9 +80,6 @@ namespace TetrisNetwork
 
         public void RestartGame()
         {
-            GameOverScreen.Instance.HideScreen();
-            GameScoreScreen.Instance.ResetScore();
-
             _gameIsOver = false;
             _timer = 0f;
 
@@ -91,7 +92,7 @@ namespace TetrisNetwork
 
         private void DestroyLine(int y)
         {
-            MatchController.Instance.AddPointsClientRpc(_gameSettings.PointsByBreakingLine);
+            MatchController.Instance.AddPointsClientRpc(_gameSettings.PointsByBreakingLine, _clientId);
 
             _tetrominos.ForEach(x => x.DestroyLine(y));
             _tetrominos.RemoveAll(x => x.Destroyed == true);
@@ -101,12 +102,12 @@ namespace TetrisNetwork
         private void OnGameOver()
         {
             MatchController.Instance.OnGameOverServerRpc();
+            MatchController.Instance.OnGameOverClientRpc(_clientId);
         }
 
         public void SetGameOver()
         {
             _gameIsOver = true;
-            GameOverScreen.Instance.ShowScreen();
         }
 
         private void CreateTetromino()
@@ -135,7 +136,6 @@ namespace TetrisNetwork
             _tetrominoPool.Release(obj);
             _tetrominos[index].Destroyed = true;
         }
-
 
         public void Update()
         {

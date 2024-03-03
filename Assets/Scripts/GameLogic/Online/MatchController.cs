@@ -22,6 +22,7 @@ namespace TetrisNetwork
             NetworkManager.Singleton.OnServerStarted += () => _serverStarted = true;
 
             GameOverScreen.Instance.HideScreen(0f);
+            GameWinnerScreen.Instance.HideScreen(0f);
             GameScoreScreen.Instance.HideScreen();
         }
 
@@ -47,13 +48,9 @@ namespace TetrisNetwork
             }
         }
 
-        public void StartMatch()
-        {
-            StartGameServerRpc((int)NetworkManager.LocalClientId);
-        }
-
         [ClientRpc]
         public void StartMatchClientRpc() {
+            GameScoreScreen.Instance.ResetScore();
             StartGameServerRpc((int)NetworkManager.LocalClientId);
         }
 
@@ -65,9 +62,24 @@ namespace TetrisNetwork
         }
 
         [ClientRpc]
-        public void AddPointsClientRpc(int value)
+        public void AddPointsClientRpc(int value, int clientId)
         {
-            GameScoreScreen.Instance.AddPoints(value);
+            if ((int)NetworkManager.Singleton.LocalClientId == clientId)
+            {
+                GameScoreScreen.Instance.AddPoints(value);
+            }
+        }
+
+        [ClientRpc]
+        public void OnGameOverClientRpc(int clientLoser)
+        {
+            if ((int)NetworkManager.Singleton.LocalClientId == clientLoser)
+            {
+                GameOverScreen.Instance.ShowScreen();
+            } else
+            {
+                GameWinnerScreen.Instance.ShowScreen();
+            }
         }
 
         [ServerRpc(RequireOwnership = false)]
@@ -79,12 +91,22 @@ namespace TetrisNetwork
         public void CallRestart()
         {
             RestartGameServerRpc();
+            RestartGameClientRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
         public void RestartGameServerRpc()
         {
             foreach (var player in _gameControllers) { player.RestartGame(); }
+        }
+
+        [ClientRpc]
+        public void RestartGameClientRpc()
+        {
+            Debug.Log("Hide Screen");
+            GameOverScreen.Instance.HideScreen();
+            GameWinnerScreen.Instance.HideScreen();
+            GameScoreScreen.Instance.ResetScore();
         }
     }
 }
