@@ -79,6 +79,17 @@ namespace TetrisNetwork
                 OnDestroyTetrominoView.Invoke(this);
         }
 
+        public void CreateNewLine(int y)
+        {
+            for (int i = 0; i < _pieces.Count; i++)
+            {
+                if (_pieces[i].Position.y <= y)
+                {
+                    MovePiece(_pieces[i], _pieces[i].Position.x, _pieces[i].Position.y - 1);
+                }
+            }
+        }
+
         public void ForcePosition(int x, int y)
         {
             _tetriminoPosition = new Vector2Int(x, y);

@@ -8,7 +8,8 @@ namespace TetrisNetwork
     public enum SpotState
     {
         Empty = 0,
-        Filled = 1
+        Filled = 1,
+        Bomb = 2,
     }
     public class GameField
     {
@@ -17,6 +18,7 @@ namespace TetrisNetwork
 
         public Action OnCurrentPieceReachBottom;
         public Action OnGameOver;
+        public Action OnMomentToCreateLine;
         public Action<int> OnDestroyLine;
 
         private int[][] _gameField = new int[WIDTH][];
@@ -64,6 +66,11 @@ namespace TetrisNetwork
             return _currentTetrimino;
         }
 
+        public Tetromino CreateOneBlockTetromino()
+        {
+            return _spawner.GetOneBlockTetromino();
+        }
+
         public void Step()
         {
             Vector2Int position = _currentTetrimino.CurrentPosition;
@@ -77,17 +84,20 @@ namespace TetrisNetwork
             }
             else
             {
+                Debug.Log("Step can't move");
                 PlaceTetrimino(_currentTetrimino);
                 DeletePossibleLines();
 
-                if (IsGameOver())
-                {
-                    OnGameOver.Invoke();
-                    return;
-                }
+                //if (IsGameOver())
+                //{
+                  //  OnGameOver.Invoke();
+                    //return;
+                //}
 
                 OnCurrentPieceReachBottom.Invoke();
             }
+
+            OnMomentToCreateLine?.Invoke();
         }
 
         public void MakeMove(OnFieldMovement movement)
@@ -147,10 +157,34 @@ namespace TetrisNetwork
             }
         }
 
-
         private bool InBounds(int x, int y)
         {
             return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+        }
+
+        public void CreateLineFromBottom(int y, List<Tetromino> tetrominos)
+        {
+            for (int i = 0; i < WIDTH; i++)
+            {
+                for (int j = 1; j <= y; j++)
+                {
+                    _gameField[i][j] = _gameField[i][j - 1];
+                }
+            }
+
+            for (int i = 0; i < WIDTH; i++)
+            {
+                Tetromino oneBlockTetromino = tetrominos[i];
+                oneBlockTetromino.CurrentRotation = 0;
+                oneBlockTetromino.CurrentPosition = new Vector2Int(i, y);
+
+                PlaceTetrimino(oneBlockTetromino);
+
+                if(i == 0)
+                {
+                    _gameField[i][y] = (int)SpotState.Bomb;
+                }
+            }
         }
 
         private void DeletePossibleLines()
@@ -160,10 +194,13 @@ namespace TetrisNetwork
                 int i = 0;
                 while (i < WIDTH)
                 {
-                    if (_gameField[i][j] != (int)SpotState.Filled) 
+                    int spot = _gameField[i][j];
+
+                    if (spot != (int)SpotState.Filled || spot == (int)SpotState.Bomb) 
                     {
                         break;
                     }
+
                     i++;
                 }
 

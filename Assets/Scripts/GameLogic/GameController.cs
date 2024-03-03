@@ -35,6 +35,7 @@ namespace TetrisNetwork
         private Tetromino _currentTetromino { get; set; } = null;
 
         private int _clientId;
+        public int ClientId => _clientId;
        
         public void StartGame(int clientId)
         {
@@ -93,12 +94,29 @@ namespace TetrisNetwork
         private void DestroyLine(int y)
         {
             MatchController.Instance.AddPointsClientRpc(_gameSettings.PointsByBreakingLine, _clientId);
+            MatchController.Instance.CreateLineForOtherPlayer(GameField.HEIGHT - 1, _clientId);
 
             _tetrominos.ForEach(x => x.DestroyLine(y));
             _tetrominos.RemoveAll(x => x.Destroyed == true);
         }
 
-        
+        public void WaitMomentToCreateLine(int y)
+        {
+            _gameField.OnMomentToCreateLine = delegate { CreateLine(y); };
+        }
+
+        public void CreateLine(int y)
+        {
+            _gameField.OnMomentToCreateLine = delegate { };
+
+            _tetrominos.ForEach(x => x.CreateNewLine(y));
+            _gameField.CreateLineFromBottom(y, CreateTetrominoLine());
+
+            _refreshPreview = true;
+        }
+
+
+
         private void OnGameOver()
         {
             MatchController.Instance.OnGameOverServerRpc();
@@ -128,6 +146,29 @@ namespace TetrisNetwork
             _preview = _tetrominoPool.Collect();
             _preview.InitiateTetromino(tetromino, true);
             _refreshPreview = true;
+        }
+
+        private List<Tetromino> CreateTetrominoLine()
+        {
+            List<Tetromino> line = new List<Tetromino>();
+
+            for(int i = 0; i < GameField.WIDTH; i++)
+            {
+                line.Add(CreateOneBlockTetromino());
+            }
+
+            return line;
+
+        }
+
+        private Tetromino CreateOneBlockTetromino()
+        {
+            var tetromino = _gameField.CreateOneBlockTetromino();
+            var tetrominoView = _tetrominoPool.Collect();
+            tetrominoView.InitiateTetromino(tetromino);
+            _tetrominos.Add(tetrominoView);
+
+            return tetromino;
         }
 
         private void DestroyTetromino(TetrominoView obj)

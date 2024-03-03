@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -113,6 +114,14 @@ namespace TetrisNetwork
             GameOverScreen.Instance.HideScreen();
             GameWinnerScreen.Instance.HideScreen();
             GameScoreScreen.Instance.ResetScore();
+        }
+
+        public void CreateLineForOtherPlayer(int y,int clientId)
+        {
+            Debug.Log("Create Line for other");
+            var lineReciver = _gameControllers.FirstOrDefault(contorller => contorller.ClientId != clientId);
+
+            lineReciver.WaitMomentToCreateLine(y);
         }
     }
 }

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
 
 namespace TetrisNetwork
 {
@@ -10,10 +12,14 @@ namespace TetrisNetwork
         private List<TetrominoSpecs> _allTetriminos = new List<TetrominoSpecs>();
         private List<TetrominoSpecs> _availableTetriminos = new List<TetrominoSpecs>();
 
+        private TetrominoSpecs _oneBlockSpec;
+
         public TetrominoSpawner(bool controledRandom, List<TetrominoSpecs> allTetriminos)
         {
             _controledRandom = controledRandom;
             _allTetriminos = allTetriminos;
+
+            _oneBlockSpec = OneBlockSpecs();
         }
 
         public Tetromino GetRandomTetromino()
@@ -31,6 +37,42 @@ namespace TetrisNetwork
             }
          
             return new Tetromino(_allTetriminos[RandomGenerator.random.Next(0, _allTetriminos.Count)]);
+        }
+
+        public Tetromino GetOneBlockTetromino()
+        {
+            return new Tetromino(_oneBlockSpec);
+        }
+
+        private TetrominoSpecs OneBlockSpecs() {
+            TetrominoSpecs oneBlock = new();
+
+            oneBlock.Name = "SingleBlock";
+            oneBlock.Color = Color.black;
+            oneBlock.InitialPosition = new Vector2Int[Tetromino.BLOCK_ROTATIONS];
+            oneBlock.SerializedBlockPositions = new List<int>();
+
+
+            for (int i = 0; i < Tetromino.BLOCK_ROTATIONS; i++)
+            {
+                oneBlock.InitialPosition[i] = new Vector2Int(0, 0);
+
+                for (int j = 0; j < Tetromino.BLOCK_AREA; j++)
+                {
+                    for (int l = 0; l < Tetromino.BLOCK_AREA; l++)
+                    {
+                        if (j == 0 && i == 0)
+                        {
+                            oneBlock.SerializedBlockPositions.Add(1);
+                        } else
+                        {
+                            oneBlock.SerializedBlockPositions.Add(0);
+                        }
+                    }
+                }
+            }
+
+            return oneBlock;
         }
 
         private List<TetrominoSpecs> GetFullTetrominoBaseList()
