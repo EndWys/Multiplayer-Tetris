@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -15,9 +14,12 @@ namespace TetrisNetwork
 
         [SerializeField] List<GameController> _gameControllers;
 
+        NetworkManager netManager;
+
         private void Start()
         {
             _instance = this;
+            netManager = NetworkManager.Singleton;
 
             NetworkManager.Singleton.OnServerStarted += () => _serverStarted = true;
 
@@ -33,6 +35,11 @@ namespace TetrisNetwork
 
         void WaitForMatchReadyToStart()
         {
+            if (!netManager.IsServer)
+            {
+                return;
+            }
+
             if (_isGameStarted)
             {
                 return;
@@ -40,9 +47,8 @@ namespace TetrisNetwork
 
             if (_serverStarted)
             {
-                if (NetworkManager.Singleton.ConnectedClientsList.Count == 2)
+                if (netManager.ConnectedClientsList.Count == 2)
                 {
-                    _isGameStarted = true;
                     StartMatchClientRpc();
                 }
             }
@@ -50,8 +56,9 @@ namespace TetrisNetwork
 
         [ClientRpc]
         public void StartMatchClientRpc() {
+            _isGameStarted = true;
             GameScoreScreen.Instance.ResetScore();
-            StartGameServerRpc((int)NetworkManager.LocalClientId);
+            StartGameServerRpc((int)netManager.LocalClientId);
         }
 
 
@@ -64,7 +71,7 @@ namespace TetrisNetwork
         [ClientRpc]
         public void AddPointsClientRpc(int value, int clientId)
         {
-            if ((int)NetworkManager.Singleton.LocalClientId == clientId)
+            if ((int)netManager.LocalClientId == clientId)
             {
                 GameScoreScreen.Instance.AddPoints(value);
             }
@@ -73,7 +80,7 @@ namespace TetrisNetwork
         [ClientRpc]
         public void OnGameOverClientRpc(int clientLoser)
         {
-            if ((int)NetworkManager.Singleton.LocalClientId == clientLoser)
+            if ((int)netManager.LocalClientId == clientLoser)
             {
                 GameOverScreen.Instance.ShowScreen();
             } else
@@ -103,7 +110,6 @@ namespace TetrisNetwork
         [ClientRpc]
         public void RestartGameClientRpc()
         {
-            Debug.Log("Hide Screen");
             GameOverScreen.Instance.HideScreen();
             GameWinnerScreen.Instance.HideScreen();
             GameScoreScreen.Instance.ResetScore();

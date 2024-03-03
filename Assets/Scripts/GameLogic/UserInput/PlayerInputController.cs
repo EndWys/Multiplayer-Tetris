@@ -16,9 +16,9 @@ namespace TetrisNetwork
         public Action OnRotateLeft;
         public Action OnRotateRight;
 
-        IGameInput _inputController;
+        private IGameInput _inputController;
 
-        int _clientId;
+        private int _clientId;
 
         private void Awake()
         {
@@ -62,7 +62,6 @@ namespace TetrisNetwork
 
         public void SetClientId(int clientId)
         {
-            Debug.Log("InputControllerId - " + clientId);
             _clientId = clientId;
         }
 
