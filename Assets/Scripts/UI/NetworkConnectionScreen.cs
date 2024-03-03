@@ -17,7 +17,6 @@ namespace TetrisNetwork
             base.Awake();
             _clientButton.onClick.AddListener(OnClientClick);
             _hostButton.onClick.AddListener(OnHostClick);
-
         }
         
 
