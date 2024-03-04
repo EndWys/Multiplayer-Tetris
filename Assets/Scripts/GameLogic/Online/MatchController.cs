@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -75,6 +76,19 @@ namespace TetrisNetwork
             {
                 GameScoreScreen.Instance.AddPoints(value);
             }
+        }
+
+        public void CreateLineForOtherPlayer(int y, int clientId)
+        {
+            var lineReciver = _gameControllers.FirstOrDefault(contorller => contorller.ClientId != clientId);
+
+            if (lineReciver == null)
+            {
+                Debug.LogException(new System.Exception("No Player for reviving line with bomb"));
+                return;
+            }
+
+            lineReciver.WaitMomentToCreateBombLine(y);
         }
 
         [ClientRpc]

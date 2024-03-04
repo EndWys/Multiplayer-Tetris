@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -12,6 +10,7 @@ namespace TetrisNetwork
 
         [SerializeField] GameObject _tetrominoBlockPrefab;
         [SerializeField] GameObject _tetrominoPrefab;
+        [SerializeField] GameObject _bombPrefab;
         [SerializeField] Transform _tetrominoParent;
 
         [SerializeField] float timeToStep = 2f;
@@ -31,10 +30,12 @@ namespace TetrisNetwork
 
         private Pooling<TetrominoBlockView> _blockPool = new Pooling<TetrominoBlockView>();
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
+        private Pooling<BombView> _bombPool = new Pooling<BombView>();
 
         private Tetromino _currentTetromino { get; set; } = null;
 
         private int _clientId;
+        public int ClientId => _clientId;
        
         public void StartGame(int clientId)
         {
@@ -54,6 +55,14 @@ namespace TetrisNetwork
             _tetrominoPool.CreateMoreIfNeeded = true;
             _tetrominoPool.Initialize(_tetrominoPrefab, _tetrominoParent);
             _tetrominoPool.OnObjectCreationCallBack += x =>
+            {
+                x.OnDestroyTetrominoView = DestroyTetromino;
+                x.BlockPool = _blockPool;
+            };
+
+            _bombPool.CreateMoreIfNeeded = true;
+            _bombPool.Initialize(_bombPrefab, _tetrominoParent);
+            _bombPool.OnObjectCreationCallBack += x =>
             {
                 x.OnDestroyTetrominoView = DestroyTetromino;
                 x.BlockPool = _blockPool;
@@ -93,12 +102,31 @@ namespace TetrisNetwork
         private void DestroyLine(int y)
         {
             MatchController.Instance.AddPointsClientRpc(_gameSettings.PointsByBreakingLine, _clientId);
+            MatchController.Instance.CreateLineForOtherPlayer(GameField.HEIGHT - 1, _clientId);
 
             _tetrominos.ForEach(x => x.DestroyLine(y));
             _tetrominos.RemoveAll(x => x.Destroyed == true);
         }
 
-        
+        public void WaitMomentToCreateBombLine(int y)
+        {
+            _gameField.OnMomentToCreateLine = delegate { CreateBombLine(y); };
+        }
+
+        public void CreateBombLine(int y)
+        {
+            _gameField.OnMomentToCreateLine = delegate { };
+
+            _tetrominos.ForEach(x => x.OnCreateNewLine(y));
+
+            int bombX = RandomGenerator.random.Next(0, GameField.WIDTH);
+            var tetrominoLine = CreateLineOfOneBlockTetrominos(bombX);
+
+            _gameField.CreateBombLine(y, bombX, tetrominoLine);
+
+            _refreshPreview = true;
+        }
+
         private void OnGameOver()
         {
             MatchController.Instance.OnGameOverServerRpc();
@@ -128,6 +156,39 @@ namespace TetrisNetwork
             _preview = _tetrominoPool.Collect();
             _preview.InitiateTetromino(tetromino, true);
             _refreshPreview = true;
+        }
+
+        private List<Tetromino> CreateLineOfOneBlockTetrominos(int bombX)
+        {
+            List<Tetromino> line = new List<Tetromino>();
+
+            for(int i = 0; i < GameField.WIDTH; i++)
+            {
+                line.Add(CreateOneBlockTetromino(i == bombX));
+            }
+
+            return line;
+
+        }
+
+        private Tetromino CreateOneBlockTetromino(bool isBomb = false)
+        {
+            Tetromino tetromino = _gameField.CreateOneBlockTetromino();
+            TetrominoView tetrominoView;
+
+            if (isBomb)
+            {
+                tetrominoView = _bombPool.Collect();
+            }
+            else
+            {
+                tetrominoView = _tetrominoPool.Collect();
+            }
+            
+            tetrominoView.InitiateTetromino(tetromino);
+            _tetrominos.Add(tetrominoView);
+
+            return tetromino;
         }
 
         private void DestroyTetromino(TetrominoView obj)

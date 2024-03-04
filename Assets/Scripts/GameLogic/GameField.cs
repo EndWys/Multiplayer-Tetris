@@ -2,13 +2,15 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TetrisNetwork
 {
     public enum SpotState
     {
         Empty = 0,
-        Filled = 1
+        Filled = 1,
+        Bomb = 2,
     }
     public class GameField
     {
@@ -17,17 +19,16 @@ namespace TetrisNetwork
 
         public Action OnCurrentPieceReachBottom;
         public Action OnGameOver;
+        public Action OnMomentToCreateLine;
+        public Action OnMomentForDetanateBomb;
         public Action<int> OnDestroyLine;
 
         private int[][] _gameField = new int[WIDTH][];
         private TetrominoSpawner _spawner;
         private Tetromino _currentTetrimino;
-        private GameSettings _gameSettings;
 
         public GameField(GameSettings gameSettings)
         {
-            _gameSettings = gameSettings;
-
             for (int i = 0; i < WIDTH; i++)
             {
                 _gameField[i] = new int[HEIGHT];
@@ -64,6 +65,11 @@ namespace TetrisNetwork
             return _currentTetrimino;
         }
 
+        public Tetromino CreateOneBlockTetromino()
+        {
+            return _spawner.GetOneBlockTetromino();
+        }
+
         public void Step()
         {
             Vector2Int position = _currentTetrimino.CurrentPosition;
@@ -78,16 +84,19 @@ namespace TetrisNetwork
             else
             {
                 PlaceTetrimino(_currentTetrimino);
+                OnMomentForDetanateBomb?.Invoke();
                 DeletePossibleLines();
 
                 if (IsGameOver())
                 {
-                    OnGameOver.Invoke();
+                    OnGameOver?.Invoke();
                     return;
                 }
 
-                OnCurrentPieceReachBottom.Invoke();
+                OnCurrentPieceReachBottom?.Invoke();
             }
+
+            OnMomentToCreateLine?.Invoke();
         }
 
         public void MakeMove(OnFieldMovement movement)
@@ -142,15 +151,68 @@ namespace TetrisNetwork
                     if (tetromino.ValidBlock(tetromino.CurrentRotation, j2, i2) && InBounds(i1, j1))
                     {
                         _gameField[i1][j1] = (int)SpotState.Filled;
+                        CheckForNearBomb(i1,j1 + 1);
                     }
                 }
             }
         }
 
-
         private bool InBounds(int x, int y)
         {
             return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+        }
+
+        private void CheckForNearBomb(int x, int y)
+        {
+            if (!InBounds(x, y))
+            {
+                return;
+            }
+
+            if (_gameField[x][y] == (int)SpotState.Bomb)
+            {
+                OnMomentForDetanateBomb = delegate { OnDetanateBomb(y); };
+            }
+        }
+
+        private void OnDetanateBomb(int y)
+        {
+            OnMomentForDetanateBomb = delegate { };
+            DeleteLine(y);
+        }
+
+        public void CreateBombLine(int y,int bombX, List<Tetromino> tetrominos)
+        {
+            MoveFieldUp(y);
+            PlaceLineWithBomb(y, bombX, tetrominos);
+        }
+
+        private void MoveFieldUp(int y)
+        {
+            for (int j = 1; j <= y; j++)
+            {
+                for (int i = 0; i < WIDTH; i++)
+                {
+                    _gameField[i][j - 1] = _gameField[i][j];
+                }
+            }
+        }
+
+        private void PlaceLineWithBomb(int y, int bombX, List<Tetromino> tetrominos)
+        {
+            for (int i = 0; i < WIDTH; i++)
+            {
+                Tetromino oneBlockTetromino = tetrominos[i];
+                oneBlockTetromino.CurrentRotation = 0;
+                oneBlockTetromino.CurrentPosition = new Vector2Int(i, y);
+
+                PlaceTetrimino(oneBlockTetromino);
+
+                if (i == bombX)
+                {
+                    _gameField[i][y] = (int)SpotState.Bomb;
+                }
+            }
         }
 
         private void DeletePossibleLines()
@@ -160,10 +222,12 @@ namespace TetrisNetwork
                 int i = 0;
                 while (i < WIDTH)
                 {
-                    if (_gameField[i][j] != (int)SpotState.Filled) 
+                    int spot = _gameField[i][j];
+                    if (spot != (int)SpotState.Filled || spot == (int)SpotState.Bomb) 
                     {
                         break;
                     }
+
                     i++;
                 }
 
