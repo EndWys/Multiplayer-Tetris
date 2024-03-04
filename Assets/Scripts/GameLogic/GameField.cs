@@ -88,11 +88,11 @@ namespace TetrisNetwork
                 PlaceTetrimino(_currentTetrimino);
                 DeletePossibleLines();
 
-                //if (IsGameOver())
-                //{
-                  //  OnGameOver.Invoke();
-                    //return;
-                //}
+                if (IsGameOver())
+                {
+                    OnGameOver.Invoke();
+                    return;
+                }
 
                 OnCurrentPieceReachBottom.Invoke();
             }
@@ -164,11 +164,11 @@ namespace TetrisNetwork
 
         public void CreateLineFromBottom(int y, List<Tetromino> tetrominos)
         {
-            for (int i = 0; i < WIDTH; i++)
+            for (int j = 1; j <= y; j++)
             {
-                for (int j = 1; j <= y; j++)
+                for (int i = 0; i < WIDTH; i++)
                 {
-                    _gameField[i][j] = _gameField[i][j - 1];
+                    _gameField[i][j - 1] = _gameField[i][j];
                 }
             }
 
