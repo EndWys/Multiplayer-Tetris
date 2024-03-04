@@ -1,11 +1,8 @@
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-namespace TetrisNetwork
-{
-    public class CachedMonoBehaviour : MonoBehaviour
+namespace TetrisNetwork {
+    public class NetworkCachedMonoBehaviour : NetworkBehaviour
     {
         Transform _cachedTransform;
         GameObject _cachedGameObject;

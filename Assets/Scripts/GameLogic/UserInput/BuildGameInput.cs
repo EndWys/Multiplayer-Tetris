@@ -13,6 +13,8 @@ namespace TetrisNetwork {
         [SerializeField] Button RotateRight;
         [SerializeField] Button MoveDown;
 
+        public Action<InputT> OnInput { get; set; }
+
         public Action OnMoveLeft { get; set; }
         public Action OnMoveRight { get; set; }
         public Action OnMoveDown { get; set; }
@@ -23,11 +25,11 @@ namespace TetrisNetwork {
         {
             CachedGameObject.SetActive(true);
 
-            MoveLeft.onClick.AddListener(OnMoveLeft.Invoke);
-            MoveRight.onClick.AddListener(OnMoveRight.Invoke);
-            RotateLeft.onClick.AddListener(OnRotateLeft.Invoke);
-            RotateRight.onClick.AddListener(OnRotateRight.Invoke);
-            MoveDown.onClick.AddListener(OnMoveDown.Invoke);
+            MoveLeft.onClick.AddListener(() => OnInput.Invoke(InputT.MoveLeft));
+            MoveRight.onClick.AddListener(() => OnInput.Invoke(InputT.MoveRight));
+            RotateLeft.onClick.AddListener(() => OnInput.Invoke(InputT.RotateLeft));
+            RotateRight.onClick.AddListener(() => OnInput.Invoke(InputT.RotateRight));
+            MoveDown.onClick.AddListener(() => OnInput.Invoke(InputT.MoveDown));
         }
     }
 }

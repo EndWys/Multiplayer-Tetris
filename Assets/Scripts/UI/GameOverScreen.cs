@@ -1,4 +1,3 @@
-
 namespace TetrisNetwork
 {
     public class GameOverScreen : ScoreScreenBase<GameOverScreen>

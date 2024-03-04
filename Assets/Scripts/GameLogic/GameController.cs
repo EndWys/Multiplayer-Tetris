@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
+using VContainer;
 
 namespace TetrisNetwork
 {
-    public class GameController : NetworkBehaviour
+    public class GameController : MonoBehaviour
     {
         private const string JSON_PATH = @"SupportFiles/GameSettings";
 
@@ -15,7 +17,7 @@ namespace TetrisNetwork
 
         [SerializeField] float timeToStep = 2f;
 
-        [SerializeField] PlayerInputController _playerInput;
+        [SerializeField] PlayerInputConnenctor _inputConnector;
 
         private GameSettings _gameSettings;
         private GameField _gameField;
@@ -34,20 +36,22 @@ namespace TetrisNetwork
 
         private Tetromino _currentTetromino { get; set; } = null;
 
+        private LocalMatchStarter _matchController;
+
         private int _clientId;
         public int ClientId => _clientId;
-       
+
+        [Inject]
+        public void Construct(LocalMatchStarter matchStarter)
+        {
+            _matchController = matchStarter;
+        }
+
         public void StartGame(int clientId)
         {
             _clientId = clientId;
 
-            _playerInput.SetClientId(clientId);
-
-            _playerInput.OnRotateRight = RotateTetrominoRight;
-            _playerInput.OnRotateLeft = RotateTetrominoLeft;
-            _playerInput.OnMoveLeft = MoveTetrominoLeft;
-            _playerInput.OnMoveRight = MoveTetrominoRight;
-            _playerInput.OnMoveDown = MoveTetrominoDown;
+            ConnectInput();
 
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
@@ -101,11 +105,10 @@ namespace TetrisNetwork
 
         private void DestroyLine(int y)
         {
-            MatchController.Instance.AddPointsClientRpc(_gameSettings.PointsByBreakingLine, _clientId);
-            MatchController.Instance.CreateLineForOtherPlayer(GameField.HEIGHT - 1, _clientId);
-
             _tetrominos.ForEach(x => x.DestroyLine(y));
             _tetrominos.RemoveAll(x => x.Destroyed == true);
+
+            _matchController.OnDestroyLine(_gameSettings.PointsByBreakingLine, _clientId);
         }
 
         public void WaitMomentToCreateBombLine(int y)
@@ -129,8 +132,7 @@ namespace TetrisNetwork
 
         private void OnGameOver()
         {
-            MatchController.Instance.OnGameOverServerRpc();
-            MatchController.Instance.OnGameOverClientRpc(_clientId);
+            _matchController.OnGameOver(_clientId);
         }
 
         public void SetGameOver()
@@ -196,6 +198,18 @@ namespace TetrisNetwork
             var index = _tetrominos.FindIndex(x => x == obj);
             _tetrominoPool.Release(obj);
             _tetrominos[index].Destroyed = true;
+        }
+
+        private void ConnectInput()
+        {
+            _inputConnector.SetClientId(_clientId);
+            _inputConnector.ConnectSignal();
+
+            _inputConnector.ConnectAction(InputT.RotateRight, RotateTetrominoRight);
+            _inputConnector.ConnectAction(InputT.RotateLeft, RotateTetrominoLeft);
+            _inputConnector.ConnectAction(InputT.MoveLeft, MoveTetrominoLeft);
+            _inputConnector.ConnectAction(InputT.MoveRight, MoveTetrominoRight);
+            _inputConnector.ConnectAction(InputT.MoveDown, MoveTetrominoDown);
         }
 
         public void Update()

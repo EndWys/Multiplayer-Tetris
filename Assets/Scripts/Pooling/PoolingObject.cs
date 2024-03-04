@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class PoolingObject : CachedMonoBehaviour, IPooling
+    public class PoolingObject : NetworkCachedMonoBehaviour, IPooling
     {
         public virtual string ObjectName => "";
 

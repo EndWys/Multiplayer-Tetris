@@ -5,59 +5,19 @@ using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class MatchController : NetworkBehaviour
+    public class ServerMatchController : NetworkBehaviour
     {
-        private static MatchController _instance;
-        public static MatchController Instance => _instance;
-
-        private bool _serverStarted = false;
-        private bool _isGameStarted = false;
-
         [SerializeField] List<GameController> _gameControllers;
 
         NetworkManager netManager;
 
         private void Start()
         {
-            _instance = this;
             netManager = NetworkManager.Singleton;
-
-            NetworkManager.Singleton.OnServerStarted += () => _serverStarted = true;
-
-            GameOverScreen.Instance.HideScreen(0f);
-            GameWinnerScreen.Instance.HideScreen(0f);
-            GameScoreScreen.Instance.HideScreen();
-        }
-
-        private void Update()
-        {
-            WaitForMatchReadyToStart();
-        }
-
-        void WaitForMatchReadyToStart()
-        {
-            if (!netManager.IsServer)
-            {
-                return;
-            }
-
-            if (_isGameStarted)
-            {
-                return;
-            }
-
-            if (_serverStarted)
-            {
-                if (netManager.ConnectedClientsList.Count == 2)
-                {
-                    StartMatchClientRpc();
-                }
-            }
         }
 
         [ClientRpc]
         public void StartMatchClientRpc() {
-            _isGameStarted = true;
             GameScoreScreen.Instance.ResetScore();
             StartGameServerRpc((int)netManager.LocalClientId);
         }
@@ -115,7 +75,7 @@ namespace TetrisNetwork
         }
 
         [ServerRpc(RequireOwnership = false)]
-        private void RestartGameServerRpc()
+        public void RestartGameServerRpc()
         {
             ResetGameControllers();
             RestartGameClientRpc();
