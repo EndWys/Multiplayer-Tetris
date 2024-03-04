@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace TetrisNetwork
 {
@@ -25,12 +26,9 @@ namespace TetrisNetwork
         private int[][] _gameField = new int[WIDTH][];
         private TetrominoSpawner _spawner;
         private Tetromino _currentTetrimino;
-        private GameSettings _gameSettings;
 
         public GameField(GameSettings gameSettings)
         {
-            _gameSettings = gameSettings;
-
             for (int i = 0; i < WIDTH; i++)
             {
                 _gameField[i] = new int[HEIGHT];
@@ -159,31 +157,37 @@ namespace TetrisNetwork
             }
         }
 
+        private bool InBounds(int x, int y)
+        {
+            return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+        }
+
         private void CheckForNearBomb(int x, int y)
         {
-            if(!InBounds(x, y))
+            if (!InBounds(x, y))
             {
                 return;
             }
 
             if (_gameField[x][y] == (int)SpotState.Bomb)
             {
-                OnMomentForDetanateBomb = delegate { Detanate(y); };
+                OnMomentForDetanateBomb = delegate { OnDetanateBomb(y); };
             }
         }
 
-        private void Detanate(int y)
+        private void OnDetanateBomb(int y)
         {
             OnMomentForDetanateBomb = delegate { };
             DeleteLine(y);
         }
 
-        private bool InBounds(int x, int y)
+        public void CreateBombLine(int y,int bombX, List<Tetromino> tetrominos)
         {
-            return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
+            MoveFieldUp(y);
+            PlaceLineWithBomb(y, bombX, tetrominos);
         }
 
-        public void CreateLineFromBottom(int y,int bombX, List<Tetromino> tetrominos)
+        private void MoveFieldUp(int y)
         {
             for (int j = 1; j <= y; j++)
             {
@@ -192,7 +196,10 @@ namespace TetrisNetwork
                     _gameField[i][j - 1] = _gameField[i][j];
                 }
             }
+        }
 
+        private void PlaceLineWithBomb(int y, int bombX, List<Tetromino> tetrominos)
+        {
             for (int i = 0; i < WIDTH; i++)
             {
                 Tetromino oneBlockTetromino = tetrominos[i];
@@ -201,7 +208,7 @@ namespace TetrisNetwork
 
                 PlaceTetrimino(oneBlockTetromino);
 
-                if(i == bombX)
+                if (i == bombX)
                 {
                     _gameField[i][y] = (int)SpotState.Bomb;
                 }
@@ -216,7 +223,6 @@ namespace TetrisNetwork
                 while (i < WIDTH)
                 {
                     int spot = _gameField[i][j];
-
                     if (spot != (int)SpotState.Filled || spot == (int)SpotState.Bomb) 
                     {
                         break;

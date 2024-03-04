@@ -79,7 +79,7 @@ namespace TetrisNetwork
                 OnDestroyTetrominoView.Invoke(this);
         }
 
-        public void CreateNewLine(int y)
+        public void OnCreateNewLine(int y)
         {
             for (int i = 0; i < _pieces.Count; i++)
             {

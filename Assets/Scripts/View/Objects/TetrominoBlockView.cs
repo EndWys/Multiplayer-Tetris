@@ -7,7 +7,6 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 
 namespace TetrisNetwork
 {
-
     public class TetrominoBlockView : PoolingObject
     {
         [SerializeField] Sprite _defaultSprite;

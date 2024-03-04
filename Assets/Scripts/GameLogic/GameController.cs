@@ -108,24 +108,24 @@ namespace TetrisNetwork
             _tetrominos.RemoveAll(x => x.Destroyed == true);
         }
 
-        public void WaitMomentToCreateLine(int y)
+        public void WaitMomentToCreateBombLine(int y)
         {
-            _gameField.OnMomentToCreateLine = delegate { CreateLine(y); };
+            _gameField.OnMomentToCreateLine = delegate { CreateBombLine(y); };
         }
 
-        public void CreateLine(int y)
+        public void CreateBombLine(int y)
         {
             _gameField.OnMomentToCreateLine = delegate { };
 
-            int bombX = RandomGenerator.random.Next(0, GameField.WIDTH);
+            _tetrominos.ForEach(x => x.OnCreateNewLine(y));
 
-            _tetrominos.ForEach(x => x.CreateNewLine(y));
-            _gameField.CreateLineFromBottom(y, bombX, CreateTetrominoLine(bombX));
+            int bombX = RandomGenerator.random.Next(0, GameField.WIDTH);
+            var tetrominoLine = CreateLineOfOneBlockTetrominos(bombX);
+
+            _gameField.CreateBombLine(y, bombX, tetrominoLine);
 
             _refreshPreview = true;
         }
-
-
 
         private void OnGameOver()
         {
@@ -158,13 +158,12 @@ namespace TetrisNetwork
             _refreshPreview = true;
         }
 
-        private List<Tetromino> CreateTetrominoLine(int bombX)
+        private List<Tetromino> CreateLineOfOneBlockTetrominos(int bombX)
         {
             List<Tetromino> line = new List<Tetromino>();
 
             for(int i = 0; i < GameField.WIDTH; i++)
             {
-
                 line.Add(CreateOneBlockTetromino(i == bombX));
             }
 

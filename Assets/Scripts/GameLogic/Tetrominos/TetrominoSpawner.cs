@@ -12,14 +12,12 @@ namespace TetrisNetwork
         private List<TetrominoSpecs> _allTetriminos = new List<TetrominoSpecs>();
         private List<TetrominoSpecs> _availableTetriminos = new List<TetrominoSpecs>();
 
-        private TetrominoSpecs _oneBlockSpec;
+        private TetrominoSpecs _oneBlockSpec = OneBlockSpecs();
 
         public TetrominoSpawner(bool controledRandom, List<TetrominoSpecs> allTetriminos)
         {
             _controledRandom = controledRandom;
             _allTetriminos = allTetriminos;
-
-            _oneBlockSpec = OneBlockSpecs();
         }
 
         public Tetromino GetRandomTetromino()
@@ -44,11 +42,18 @@ namespace TetrisNetwork
             return new Tetromino(_oneBlockSpec);
         }
 
-        private TetrominoSpecs OneBlockSpecs() {
+        private List<TetrominoSpecs> GetFullTetrominoBaseList()
+        {
+            var allTetriminos = new List<TetrominoSpecs>(_allTetriminos);
+            return allTetriminos;
+        }
+
+        private static TetrominoSpecs OneBlockSpecs()
+        {
             TetrominoSpecs oneBlock = new();
 
             oneBlock.Name = "SingleBlock";
-            oneBlock.Color = Color.black;
+            oneBlock.Color = Color.white;
             oneBlock.InitialPosition = new Vector2Int[Tetromino.BLOCK_ROTATIONS];
             oneBlock.SerializedBlockPositions = new List<int>();
 
@@ -64,7 +69,8 @@ namespace TetrisNetwork
                         if (j == 0 && l == 0)
                         {
                             oneBlock.SerializedBlockPositions.Add(1);
-                        } else
+                        }
+                        else
                         {
                             oneBlock.SerializedBlockPositions.Add(0);
                         }
@@ -73,12 +79,6 @@ namespace TetrisNetwork
             }
 
             return oneBlock;
-        }
-
-        private List<TetrominoSpecs> GetFullTetrominoBaseList()
-        {
-            var allTetriminos = new List<TetrominoSpecs>(_allTetriminos);
-            return allTetriminos;
         }
     }
 }

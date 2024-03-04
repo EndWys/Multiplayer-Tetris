@@ -78,6 +78,19 @@ namespace TetrisNetwork
             }
         }
 
+        public void CreateLineForOtherPlayer(int y, int clientId)
+        {
+            var lineReciver = _gameControllers.FirstOrDefault(contorller => contorller.ClientId != clientId);
+
+            if (lineReciver == null)
+            {
+                Debug.LogException(new System.Exception("No Player for reviving line with bomb"));
+                return;
+            }
+
+            lineReciver.WaitMomentToCreateBombLine(y);
+        }
+
         [ClientRpc]
         public void OnGameOverClientRpc(int clientLoser)
         {
@@ -114,14 +127,6 @@ namespace TetrisNetwork
             GameOverScreen.Instance.HideScreen();
             GameWinnerScreen.Instance.HideScreen();
             GameScoreScreen.Instance.ResetScore();
-        }
-
-        public void CreateLineForOtherPlayer(int y,int clientId)
-        {
-            Debug.Log("Create Line for other");
-            var lineReciver = _gameControllers.FirstOrDefault(contorller => contorller.ClientId != clientId);
-
-            lineReciver.WaitMomentToCreateLine(y);
         }
     }
 }
