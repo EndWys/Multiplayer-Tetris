@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace TetrisNetwork
 {
-    public class Pooling<T> : List<T> where T : CachedMonoBehaviour, IPooling
+    public class Pooling<T> : List<T> where T : NetworkCachedMonoBehaviour, IPooling
     {
         public bool CreateMoreIfNeeded = true;
 

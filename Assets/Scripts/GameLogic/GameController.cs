@@ -15,7 +15,7 @@ namespace TetrisNetwork
 
         [SerializeField] float timeToStep = 2f;
 
-        [SerializeField] PlayerInputController _playerInput;
+        [SerializeField] PlayerInputConnenctor _inputConnector;
 
         private GameSettings _gameSettings;
         private GameField _gameField;
@@ -41,13 +41,14 @@ namespace TetrisNetwork
         {
             _clientId = clientId;
 
-            _playerInput.SetClientId(clientId);
+            _inputConnector.SetClientId(clientId);
+            _inputConnector.ConnectSignal();
 
-            _playerInput.OnRotateRight = RotateTetrominoRight;
-            _playerInput.OnRotateLeft = RotateTetrominoLeft;
-            _playerInput.OnMoveLeft = MoveTetrominoLeft;
-            _playerInput.OnMoveRight = MoveTetrominoRight;
-            _playerInput.OnMoveDown = MoveTetrominoDown;
+            _inputConnector.ConnectAction(InputT.RotateRight, RotateTetrominoRight);
+            _inputConnector.ConnectAction(InputT.RotateLeft, RotateTetrominoLeft);
+            _inputConnector.ConnectAction(InputT.MoveLeft, MoveTetrominoLeft);
+            _inputConnector.ConnectAction(InputT.MoveRight, MoveTetrominoRight);
+            _inputConnector.ConnectAction(InputT.MoveDown, MoveTetrominoDown);
 
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);

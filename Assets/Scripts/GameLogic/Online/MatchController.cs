@@ -22,7 +22,7 @@ namespace TetrisNetwork
             _instance = this;
             netManager = NetworkManager.Singleton;
 
-            NetworkManager.Singleton.OnServerStarted += () => _serverStarted = true;
+            netManager.OnServerStarted += () => _serverStarted = true;
 
             GameOverScreen.Instance.HideScreen(0f);
             GameWinnerScreen.Instance.HideScreen(0f);
@@ -59,6 +59,7 @@ namespace TetrisNetwork
         public void StartMatchClientRpc() {
             _isGameStarted = true;
             GameScoreScreen.Instance.ResetScore();
+
             StartGameServerRpc((int)netManager.LocalClientId);
         }
 
@@ -66,6 +67,7 @@ namespace TetrisNetwork
         [ServerRpc(RequireOwnership = false)]
         private void StartGameServerRpc(int clientId)
         {
+            Debug.Log("ClientId " + clientId);
             _gameControllers[clientId].StartGame(clientId);
         }
 

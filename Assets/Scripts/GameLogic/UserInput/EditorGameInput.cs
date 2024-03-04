@@ -5,11 +5,7 @@ namespace TetrisNetwork
 {
     public class EditorGameInput : CachedMonoBehaviour, IGameInput
     {
-        public Action OnMoveLeft { get; set; }
-        public Action OnMoveRight { get; set; }
-        public Action OnMoveDown { get; set; }
-        public Action OnRotateLeft { get; set; }
-        public Action OnRotateRight { get; set; }
+        public Action<InputT> OnInput { get; set; }
 
         bool _chenckForButtons = false;
 
@@ -27,27 +23,27 @@ namespace TetrisNetwork
 
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
-                OnRotateLeft?.Invoke();
+                OnInput?.Invoke(InputT.RotateLeft);
             }
 
             if(Input.GetKeyDown(KeyCode.RightArrow)) 
             {
-                OnRotateRight?.Invoke();
+                OnInput?.Invoke(InputT.RotateRight);
             }
 
             if (Input.GetKeyDown(KeyCode.A))
             {
-                OnMoveLeft?.Invoke();
+                OnInput?.Invoke(InputT.MoveLeft);
             }
 
             if (Input.GetKeyDown(KeyCode.D))
             {
-                OnMoveRight?.Invoke();
+                OnInput?.Invoke(InputT.MoveRight);
             }
 
             if (Input.GetKey(KeyCode.S))
             {
-                OnMoveDown?.Invoke();
+                OnInput?.Invoke(InputT.MoveDown);
             }
         }
     }
