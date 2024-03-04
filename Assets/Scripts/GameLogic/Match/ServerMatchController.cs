@@ -11,7 +11,7 @@ namespace TetrisNetwork
 
         NetworkManager netManager;
 
-        public void Start()
+        private void Start()
         {
             netManager = NetworkManager.Singleton;
         }

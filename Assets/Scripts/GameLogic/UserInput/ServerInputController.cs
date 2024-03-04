@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -12,7 +11,6 @@ namespace TetrisNetwork
         [ServerRpc(RequireOwnership = false)]
         public void MakeInputMoveServerRpc(InputT t,int clientId)
         {
-            Debug.Log("Server Input: " + clientId);
             OnInputMove?.Invoke(t, clientId);
         }
     }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using VContainer;
 
@@ -50,14 +51,7 @@ namespace TetrisNetwork
         {
             _clientId = clientId;
 
-            _inputConnector.SetClientId(clientId);
-            _inputConnector.ConnectSignal();
-
-            _inputConnector.ConnectAction(InputT.RotateRight, RotateTetrominoRight);
-            _inputConnector.ConnectAction(InputT.RotateLeft, RotateTetrominoLeft);
-            _inputConnector.ConnectAction(InputT.MoveLeft, MoveTetrominoLeft);
-            _inputConnector.ConnectAction(InputT.MoveRight, MoveTetrominoRight);
-            _inputConnector.ConnectAction(InputT.MoveDown, MoveTetrominoDown);
+            ConnectInput();
 
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
@@ -204,6 +198,18 @@ namespace TetrisNetwork
             var index = _tetrominos.FindIndex(x => x == obj);
             _tetrominoPool.Release(obj);
             _tetrominos[index].Destroyed = true;
+        }
+
+        private void ConnectInput()
+        {
+            _inputConnector.SetClientId(_clientId);
+            _inputConnector.ConnectSignal();
+
+            _inputConnector.ConnectAction(InputT.RotateRight, RotateTetrominoRight);
+            _inputConnector.ConnectAction(InputT.RotateLeft, RotateTetrominoLeft);
+            _inputConnector.ConnectAction(InputT.MoveLeft, MoveTetrominoLeft);
+            _inputConnector.ConnectAction(InputT.MoveRight, MoveTetrominoRight);
+            _inputConnector.ConnectAction(InputT.MoveDown, MoveTetrominoDown);
         }
 
         public void Update()

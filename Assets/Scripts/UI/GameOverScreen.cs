@@ -1,7 +1,3 @@
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
-
 namespace TetrisNetwork
 {
     public class GameOverScreen : ScoreScreenBase<GameOverScreen>
