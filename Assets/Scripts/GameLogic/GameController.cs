@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using VContainer;
 
@@ -13,11 +11,14 @@ namespace TetrisNetwork
         [SerializeField] GameObject _tetrominoBlockPrefab;
         [SerializeField] GameObject _tetrominoPrefab;
         [SerializeField] GameObject _bombPrefab;
+        [SerializeField] GameObject _backgroundTile;
         [SerializeField] Transform _tetrominoParent;
 
         [SerializeField] float timeToStep = 2f;
 
         [SerializeField] PlayerInputConnenctor _inputConnector;
+
+        private FieldBackgroundBuilder _fieldBackground;
 
         private GameSettings _gameSettings;
         private GameField _gameField;
@@ -52,6 +53,9 @@ namespace TetrisNetwork
             _clientId = clientId;
 
             ConnectInput();
+
+            _fieldBackground = new FieldBackgroundBuilder(_backgroundTile, _tetrominoParent);
+            _fieldBackground.BuildFieldBackground();
 
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
