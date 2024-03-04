@@ -61,7 +61,7 @@ namespace TetrisNetwork
                 {
                     for (int l = 0; l < Tetromino.BLOCK_AREA; l++)
                     {
-                        if (j == 0 && i == 0)
+                        if (j == 0 && l == 0)
                         {
                             oneBlock.SerializedBlockPositions.Add(1);
                         } else

@@ -19,6 +19,7 @@ namespace TetrisNetwork
         public Action OnCurrentPieceReachBottom;
         public Action OnGameOver;
         public Action OnMomentToCreateLine;
+        public Action OnMomentForDetanateBomb;
         public Action<int> OnDestroyLine;
 
         private int[][] _gameField = new int[WIDTH][];
@@ -84,17 +85,17 @@ namespace TetrisNetwork
             }
             else
             {
-                Debug.Log("Step can't move");
                 PlaceTetrimino(_currentTetrimino);
+                OnMomentForDetanateBomb?.Invoke();
                 DeletePossibleLines();
 
                 if (IsGameOver())
                 {
-                    OnGameOver.Invoke();
+                    OnGameOver?.Invoke();
                     return;
                 }
 
-                OnCurrentPieceReachBottom.Invoke();
+                OnCurrentPieceReachBottom?.Invoke();
             }
 
             OnMomentToCreateLine?.Invoke();
@@ -152,9 +153,29 @@ namespace TetrisNetwork
                     if (tetromino.ValidBlock(tetromino.CurrentRotation, j2, i2) && InBounds(i1, j1))
                     {
                         _gameField[i1][j1] = (int)SpotState.Filled;
+                        CheckForNearBomb(i1,j1 + 1);
                     }
                 }
             }
+        }
+
+        private void CheckForNearBomb(int x, int y)
+        {
+            if(!InBounds(x, y))
+            {
+                return;
+            }
+
+            if (_gameField[x][y] == (int)SpotState.Bomb)
+            {
+                OnMomentForDetanateBomb = delegate { Detanate(y); };
+            }
+        }
+
+        private void Detanate(int y)
+        {
+            OnMomentForDetanateBomb = delegate { };
+            DeleteLine(y);
         }
 
         private bool InBounds(int x, int y)
