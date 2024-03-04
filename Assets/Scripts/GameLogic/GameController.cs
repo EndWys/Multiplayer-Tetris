@@ -10,6 +10,7 @@ namespace TetrisNetwork
 
         [SerializeField] GameObject _tetrominoBlockPrefab;
         [SerializeField] GameObject _tetrominoPrefab;
+        [SerializeField] GameObject _bombPrefab;
         [SerializeField] Transform _tetrominoParent;
 
         [SerializeField] float timeToStep = 2f;
@@ -29,6 +30,7 @@ namespace TetrisNetwork
 
         private Pooling<TetrominoBlockView> _blockPool = new Pooling<TetrominoBlockView>();
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
+        private Pooling<BombView> _bombPool = new Pooling<BombView>();
 
         private Tetromino _currentTetromino { get; set; } = null;
 
@@ -53,6 +55,14 @@ namespace TetrisNetwork
             _tetrominoPool.CreateMoreIfNeeded = true;
             _tetrominoPool.Initialize(_tetrominoPrefab, _tetrominoParent);
             _tetrominoPool.OnObjectCreationCallBack += x =>
+            {
+                x.OnDestroyTetrominoView = DestroyTetromino;
+                x.BlockPool = _blockPool;
+            };
+
+            _bombPool.CreateMoreIfNeeded = true;
+            _bombPool.Initialize(_bombPrefab, _tetrominoParent);
+            _bombPool.OnObjectCreationCallBack += x =>
             {
                 x.OnDestroyTetrominoView = DestroyTetromino;
                 x.BlockPool = _blockPool;
@@ -107,8 +117,10 @@ namespace TetrisNetwork
         {
             _gameField.OnMomentToCreateLine = delegate { };
 
+            int bombX = RandomGenerator.random.Next(0, GameField.WIDTH);
+
             _tetrominos.ForEach(x => x.CreateNewLine(y));
-            _gameField.CreateLineFromBottom(y, CreateTetrominoLine());
+            _gameField.CreateLineFromBottom(y, bombX, CreateTetrominoLine(bombX));
 
             _refreshPreview = true;
         }
@@ -146,23 +158,34 @@ namespace TetrisNetwork
             _refreshPreview = true;
         }
 
-        private List<Tetromino> CreateTetrominoLine()
+        private List<Tetromino> CreateTetrominoLine(int bombX)
         {
             List<Tetromino> line = new List<Tetromino>();
 
             for(int i = 0; i < GameField.WIDTH; i++)
             {
-                line.Add(CreateOneBlockTetromino());
+
+                line.Add(CreateOneBlockTetromino(i == bombX));
             }
 
             return line;
 
         }
 
-        private Tetromino CreateOneBlockTetromino()
+        private Tetromino CreateOneBlockTetromino(bool isBomb = false)
         {
-            var tetromino = _gameField.CreateOneBlockTetromino();
-            var tetrominoView = _tetrominoPool.Collect();
+            Tetromino tetromino = _gameField.CreateOneBlockTetromino();
+            TetrominoView tetrominoView;
+
+            if (isBomb)
+            {
+                tetrominoView = _bombPool.Collect();
+            }
+            else
+            {
+                tetrominoView = _tetrominoPool.Collect();
+            }
+            
             tetrominoView.InitiateTetromino(tetromino);
             _tetrominos.Add(tetrominoView);
 

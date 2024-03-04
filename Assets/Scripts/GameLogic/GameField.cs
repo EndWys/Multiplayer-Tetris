@@ -183,7 +183,7 @@ namespace TetrisNetwork
             return x >= 0 && x < WIDTH && y >= 0 && y < HEIGHT;
         }
 
-        public void CreateLineFromBottom(int y, List<Tetromino> tetrominos)
+        public void CreateLineFromBottom(int y,int bombX, List<Tetromino> tetrominos)
         {
             for (int j = 1; j <= y; j++)
             {
@@ -201,7 +201,7 @@ namespace TetrisNetwork
 
                 PlaceTetrimino(oneBlockTetromino);
 
-                if(i == 0)
+                if(i == bombX)
                 {
                     _gameField[i][y] = (int)SpotState.Bomb;
                 }

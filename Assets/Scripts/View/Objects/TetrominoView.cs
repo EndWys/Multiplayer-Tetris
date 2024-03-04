@@ -15,7 +15,7 @@ namespace TetrisNetwork
         public Action<TetrominoView> OnDestroyTetrominoView;
         public Pooling<TetrominoBlockView> BlockPool;
 
-        private readonly List<TetrominoBlockView> _pieces = new List<TetrominoBlockView>();
+        protected readonly List<TetrominoBlockView> _pieces = new List<TetrominoBlockView>();
         private Color _blockColor;
         private RectTransform _rectTransform;
 
@@ -38,7 +38,7 @@ namespace TetrisNetwork
             _rectTransform.offsetMax = Vector2.zero;
         }
 
-        public void InitiateTetromino(Tetromino tetrimino, bool isPreview = false)
+        public virtual void InitiateTetromino(Tetromino tetrimino, bool isPreview = false)
         {
             var ghostColor = new Color(1, 1, 1, 0.5f);
 
