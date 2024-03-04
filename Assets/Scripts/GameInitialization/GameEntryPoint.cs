@@ -6,11 +6,13 @@ namespace TetrisNetwork
 {
     public class GameEntryPoint : LifetimeScope
     {
-        [SerializeField] LocalPlayerInputController playerInputController;
+        [SerializeField] LocalPlayerInputController _playerInputController;
+        [SerializeField] LocalMatchStarter _localMatchStarter;
 
         protected override void Configure(IContainerBuilder builder)
         {
-            builder.RegisterComponent(playerInputController);
+            builder.RegisterComponent(_playerInputController);
+            builder.RegisterComponent(_localMatchStarter);
         }
     }
 }

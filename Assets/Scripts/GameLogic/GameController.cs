@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using VContainer;
 
 namespace TetrisNetwork
 {
-    public class GameController : NetworkBehaviour
+    public class GameController : MonoBehaviour
     {
         private const string JSON_PATH = @"SupportFiles/GameSettings";
 
@@ -34,9 +35,17 @@ namespace TetrisNetwork
 
         private Tetromino _currentTetromino { get; set; } = null;
 
+        private LocalMatchStarter _matchController;
+
         private int _clientId;
         public int ClientId => _clientId;
-       
+
+        [Inject]
+        public void Construct(LocalMatchStarter matchStarter)
+        {
+            _matchController = matchStarter;
+        }
+
         public void StartGame(int clientId)
         {
             _clientId = clientId;
@@ -102,11 +111,10 @@ namespace TetrisNetwork
 
         private void DestroyLine(int y)
         {
-            MatchController.Instance.AddPointsClientRpc(_gameSettings.PointsByBreakingLine, _clientId);
-            MatchController.Instance.CreateLineForOtherPlayer(GameField.HEIGHT - 1, _clientId);
-
             _tetrominos.ForEach(x => x.DestroyLine(y));
             _tetrominos.RemoveAll(x => x.Destroyed == true);
+
+            _matchController.OnDestroyLine(_gameSettings.PointsByBreakingLine, _clientId);
         }
 
         public void WaitMomentToCreateBombLine(int y)
@@ -130,8 +138,7 @@ namespace TetrisNetwork
 
         private void OnGameOver()
         {
-            MatchController.Instance.OnGameOverServerRpc();
-            MatchController.Instance.OnGameOverClientRpc(_clientId);
+            _matchController.OnGameOver(_clientId);
         }
 
         public void SetGameOver()
