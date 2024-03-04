@@ -112,17 +112,22 @@ namespace TetrisNetwork
         public void CallRestart()
         {
             RestartGameServerRpc();
-            RestartGameClientRpc();
         }
 
         [ServerRpc(RequireOwnership = false)]
-        public void RestartGameServerRpc()
+        private void RestartGameServerRpc()
+        {
+            ResetGameControllers();
+            RestartGameClientRpc();
+        }
+
+        private void ResetGameControllers()
         {
             foreach (var player in _gameControllers) { player.RestartGame(); }
         }
 
         [ClientRpc]
-        public void RestartGameClientRpc()
+        private void RestartGameClientRpc()
         {
             GameOverScreen.Instance.HideScreen();
             GameWinnerScreen.Instance.HideScreen();
