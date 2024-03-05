@@ -1,18 +1,19 @@
-using TetrisNetwork;
 using UnityEngine;
 using VContainer;
 using AudioSettings = TetrisNetwork.AudioSettings;
 
-public class AudioControllerInitializer : MonoBehaviour
+namespace TetrisNetwork
 {
-    [SerializeField] AudioSettings _audioSettings;
-    [SerializeField] GameObject _audioSourcesParent;
-
-
-    [Inject]
-    public void Construct()
+    public class AudioControllerInitializer : MonoBehaviour
     {
-        var controller = new AudioController();
-        controller.Initialize(_audioSettings, _audioSourcesParent);
+        [SerializeField] AudioSettings _audioSettings;
+        [SerializeField] GameObject _audioSourcesParent;
+
+        [Inject]
+        public void Construct()
+        {
+            var controller = new AudioController();
+            controller.Initialize(_audioSettings, _audioSourcesParent);
+        }
     }
 }
