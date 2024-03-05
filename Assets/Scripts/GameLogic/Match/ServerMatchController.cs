@@ -54,6 +54,8 @@ namespace TetrisNetwork
         [ClientRpc]
         public void OnGameOverClientRpc(int clientLoser)
         {
+            FieldArrowScreen.Instance.HideScreen();
+
             if ((int)netManager.LocalClientId == clientLoser)
             {
                 GameOverScreen.Instance.ShowScreen();
@@ -92,6 +94,15 @@ namespace TetrisNetwork
             GameOverScreen.Instance.HideScreen();
             GameWinnerScreen.Instance.HideScreen();
             GameScoreScreen.Instance.ResetScore();
+        }
+
+        [ClientRpc]
+        public void ShowYoursGameFieldClientRpc(int clientId)
+        {
+            if ((int)netManager.LocalClientId != clientId) return;
+
+            FieldArrowScreen.Instance.UpdateArrow(clientId);
+            FieldArrowScreen.Instance.ShowScreen();
         }
     }
 }

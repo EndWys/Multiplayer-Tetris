@@ -1,6 +1,3 @@
-using Unity.Netcode;
-using UnityEngine;
-
 namespace TetrisNetwork
 {
     public class BombView : TetrominoView

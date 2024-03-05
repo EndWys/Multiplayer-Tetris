@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using TetrisNetwork;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -14,12 +11,12 @@ namespace TetrisNetwork
 
         public OnFieldMovement(Tetromino tetromino, int rotatio, int x, int y)
         {
+            RectTransform d;
+
             Tetromino = tetromino;
             Rotation = rotatio;
             X = x;
             Y = y;
         }
-
-        
     }
 }

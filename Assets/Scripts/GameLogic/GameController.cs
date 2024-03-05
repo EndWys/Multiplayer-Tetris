@@ -54,9 +54,6 @@ namespace TetrisNetwork
 
             ConnectInput();
 
-            _fieldBackground = new FieldBackgroundBuilder(_backgroundTile, _tetrominoParent);
-            _fieldBackground.BuildFieldBackground();
-
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
 
@@ -85,6 +82,9 @@ namespace TetrisNetwork
             _gameSettings.CheckValidSettings();
             timeToStep = _gameSettings.TimeToStep;
 
+            _fieldBackground = new FieldBackgroundBuilder(_backgroundTile, _tetrominoParent);
+            _fieldBackground.BuildFieldBackground();
+
             _gameField = new GameField(_gameSettings);
             _gameField.OnCurrentPieceReachBottom = CreateTetromino;
             _gameField.OnGameOver = OnGameOver;
@@ -102,9 +102,12 @@ namespace TetrisNetwork
 
             _gameField.Restart();
             _tetrominoPool.ReleaseAll();
+            _bombPool.ReleaseAll();
             _tetrominos.Clear();
 
             CreateTetromino();
+
+            _matchController.ShowYoursGameField(_clientId);
         }
 
         private void DestroyLine(int y)

@@ -1,26 +1,27 @@
-using System.Collections;
-using System.Collections.Generic;
-using TetrisNetwork;
 using UnityEngine;
 
-public class FieldBackgroundBuilder
-{
-    private Pooling<BackgroundTileView> _tilePool = new Pooling<BackgroundTileView>();
-
-    public FieldBackgroundBuilder(GameObject tilePrefab, Transform parent)
+namespace TetrisNetwork {
+    public class FieldBackgroundBuilder
     {
-        _tilePool.CreateMoreIfNeeded = true;
-        _tilePool.Initialize(tilePrefab, parent);
-    }
+        const int BACKGROUND_SIZE_OFFSET = 4;
 
-    public void BuildFieldBackground()
-    {
-        for (int i = 0; i < GameField.WIDTH; i++)
+        private Pooling<BackgroundTileView> _tilePool = new Pooling<BackgroundTileView>();
+
+        public FieldBackgroundBuilder(GameObject tilePrefab, Transform parent)
         {
-            for (int j = 4; j > -GameField.HEIGHT; j--)
+            _tilePool.CreateMoreIfNeeded = true;
+            _tilePool.Initialize(tilePrefab, parent);
+        }
+
+        public void BuildFieldBackground()
+        {
+            for (int i = 0; i < GameField.WIDTH; i++)
             {
-                var tile = _tilePool.Collect();
-                tile.CachedTransform.localPosition = new Vector3(i, j, +2);
+                for (int j = BACKGROUND_SIZE_OFFSET; j > -GameField.HEIGHT; j--)
+                {
+                    var tile = _tilePool.Collect();
+                    tile.CachedTransform.localPosition = new Vector3(i, j, +2);
+                }
             }
         }
     }
