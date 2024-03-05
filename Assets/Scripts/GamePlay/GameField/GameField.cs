@@ -19,9 +19,11 @@ namespace TetrisNetwork
 
         public Action OnCurrentPieceReachBottom;
         public Action OnGameOver;
+        public Action OnDetanateBomb;
+        public Action<int> OnDestroyLine;
+
         public Action OnMomentToCreateLine;
         public Action OnMomentForDetanateBomb;
-        public Action<int> OnDestroyLine;
 
         private int[][] _gameField = new int[WIDTH][];
         private TetrominoSpawner _spawner;
@@ -172,14 +174,14 @@ namespace TetrisNetwork
 
             if (_gameField[x][y] == (int)SpotState.Bomb)
             {
-                OnMomentForDetanateBomb = delegate { OnDetanateBomb(y); };
+                OnMomentForDetanateBomb = delegate { DetanateBomb(y); };
             }
         }
 
-        private void OnDetanateBomb(int y)
+        private void DetanateBomb(int y)
         {
             OnMomentForDetanateBomb = delegate { };
-            AudioController.PlaySound(AudioController.Sounds.DetonateSound);
+            OnDetanateBomb?.Invoke();
             DeleteLine(y);
         }
 

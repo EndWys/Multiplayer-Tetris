@@ -108,9 +108,12 @@ namespace TetrisNetwork
             _fieldBackground.BuildFieldBackground();
 
             _gameField = new GameField(_gameSettings);
-            _gameField.OnCurrentPieceReachBottom = CreateTetromino;
+
+            _gameField.OnCurrentPieceReachBottom = TetrominoPlaced;
             _gameField.OnGameOver = OnGameOver;
             _gameField.OnDestroyLine = DestroyLine;
+            _gameField.OnDetanateBomb = _matchController.OnDetonateBomb;
+
         }
 
         public void RestartGame()
@@ -163,6 +166,12 @@ namespace TetrisNetwork
         public void SetGameOver()
         {
             _gameIsOver = true;
+        }
+
+        private void TetrominoPlaced()
+        {
+            _matchController.OnPlaceTetramino();
+            CreateTetromino();
         }
 
         private void CreateTetromino()

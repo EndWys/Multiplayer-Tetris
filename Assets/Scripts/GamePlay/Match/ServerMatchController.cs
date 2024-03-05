@@ -20,6 +20,7 @@ namespace TetrisNetwork
         public void StartMatchClientRpc() {
             GameScoreScreen.Instance.ResetScore();
             StartGameServerRpc((int)netManager.LocalClientId);
+            EventBusHolder.EventBus.Raise(new MatchStartEvent());
         }
 
 
@@ -35,6 +36,7 @@ namespace TetrisNetwork
             if ((int)netManager.LocalClientId == clientId)
             {
                 GameScoreScreen.Instance.AddPoints(value);
+                EventBusHolder.EventBus.Raise(new DeleteLineEvent());
             }
         }
 
@@ -49,6 +51,18 @@ namespace TetrisNetwork
             }
 
             lineReciver.WaitMomentToCreateBombLine(y);
+        }
+
+        [ClientRpc]
+        public void PlaceTetrominoClientRpc()
+        {
+            EventBusHolder.EventBus.Raise(new PlaceTerominoEvent());
+        }
+
+        [ClientRpc]
+        public void DetonateBombClientRpc()
+        {
+            EventBusHolder.EventBus.Raise(new DetonateBombEvent());
         }
 
         [ClientRpc]
