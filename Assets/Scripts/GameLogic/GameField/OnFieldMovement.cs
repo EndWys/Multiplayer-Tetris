@@ -11,8 +11,6 @@ namespace TetrisNetwork
 
         public OnFieldMovement(Tetromino tetromino, int rotatio, int x, int y)
         {
-            RectTransform d;
-
             Tetromino = tetromino;
             Rotation = rotatio;
             X = x;
