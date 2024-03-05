@@ -54,6 +54,19 @@ namespace TetrisNetwork
 
             ConnectInput();
 
+            InitializePools();
+
+            SetGameSettings();
+
+            InitializeGameField();
+
+            RestartGame();
+
+            _isConnected = true;
+        }
+
+        private void InitializePools()
+        {
             _blockPool.CreateMoreIfNeeded = true;
             _blockPool.Initialize(_tetrominoBlockPrefab, null);
 
@@ -72,6 +85,10 @@ namespace TetrisNetwork
                 x.OnDestroyTetrominoView = DestroyTetromino;
                 x.BlockPool = _blockPool;
             };
+        }
+
+        private void SetGameSettings()
+        {
 
             var settingsFile = Resources.Load<TextAsset>(JSON_PATH);
             if (settingsFile == null)
@@ -81,7 +98,10 @@ namespace TetrisNetwork
             _gameSettings = JsonUtility.FromJson<GameSettings>(json);
             _gameSettings.CheckValidSettings();
             timeToStep = _gameSettings.TimeToStep;
+        }
 
+        private void InitializeGameField()
+        {
             _fieldBackground = new FieldBackgroundBuilder(_backgroundTile, _tetrominoParent);
             _fieldBackground.BuildFieldBackground();
 
@@ -89,10 +109,6 @@ namespace TetrisNetwork
             _gameField.OnCurrentPieceReachBottom = CreateTetromino;
             _gameField.OnGameOver = OnGameOver;
             _gameField.OnDestroyLine = DestroyLine;
-
-            RestartGame();
-
-            _isConnected = true;
         }
 
         public void RestartGame()
