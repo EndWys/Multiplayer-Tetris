@@ -8,11 +8,13 @@ namespace TetrisNetwork
     {
         [SerializeField] LocalPlayerInputController _playerInputController;
         [SerializeField] LocalMatchStarter _localMatchStarter;
+        [SerializeField] AudioControllerInitializer _audioControllerInitializer;
 
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterComponent(_playerInputController);
             builder.RegisterComponent(_localMatchStarter);
+            builder.RegisterComponent(_audioControllerInitializer);
         }
     }
 }

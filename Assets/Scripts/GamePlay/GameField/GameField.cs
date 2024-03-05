@@ -143,6 +143,7 @@ namespace TetrisNetwork
 
         private void PlaceTetrimino(Tetromino tetromino)
         {
+            AudioController.PlaySound(AudioController.Sounds.TetrominoPlaceSound);
             var tetrotminoPosition = tetromino.CurrentPosition;
             for (int i1 = tetrotminoPosition.x, i2 = 0; i1 < tetrotminoPosition.x + Tetromino.BLOCK_AREA; i1++, i2++)
             {
@@ -178,6 +179,7 @@ namespace TetrisNetwork
         private void OnDetanateBomb(int y)
         {
             OnMomentForDetanateBomb = delegate { };
+            AudioController.PlaySound(AudioController.Sounds.DetonateSound);
             DeleteLine(y);
         }
 
@@ -231,7 +233,11 @@ namespace TetrisNetwork
                     i++;
                 }
 
-                if (i == WIDTH) DeleteLine(j);
+                if (i == WIDTH)
+                {
+                    AudioController.PlaySound(AudioController.Sounds.DeleteLineSound);
+                    DeleteLine(j);
+                }
             }
         }
 
