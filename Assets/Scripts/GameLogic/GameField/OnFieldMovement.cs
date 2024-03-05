@@ -1,6 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using TetrisNetwork;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -19,7 +16,5 @@ namespace TetrisNetwork
             X = x;
             Y = y;
         }
-
-        
     }
 }

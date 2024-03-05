@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Unity.Netcode;
-using UnityEditor.PackageManager;
 using UnityEngine;
 using VContainer;
 
@@ -13,11 +11,14 @@ namespace TetrisNetwork
         [SerializeField] GameObject _tetrominoBlockPrefab;
         [SerializeField] GameObject _tetrominoPrefab;
         [SerializeField] GameObject _bombPrefab;
+        [SerializeField] GameObject _backgroundTile;
         [SerializeField] Transform _tetrominoParent;
 
         [SerializeField] float timeToStep = 2f;
 
         [SerializeField] PlayerInputConnenctor _inputConnector;
+
+        private FieldBackgroundBuilder _fieldBackground;
 
         private GameSettings _gameSettings;
         private GameField _gameField;
@@ -81,6 +82,9 @@ namespace TetrisNetwork
             _gameSettings.CheckValidSettings();
             timeToStep = _gameSettings.TimeToStep;
 
+            _fieldBackground = new FieldBackgroundBuilder(_backgroundTile, _tetrominoParent);
+            _fieldBackground.BuildFieldBackground();
+
             _gameField = new GameField(_gameSettings);
             _gameField.OnCurrentPieceReachBottom = CreateTetromino;
             _gameField.OnGameOver = OnGameOver;
@@ -98,9 +102,12 @@ namespace TetrisNetwork
 
             _gameField.Restart();
             _tetrominoPool.ReleaseAll();
+            _bombPool.ReleaseAll();
             _tetrominos.Clear();
 
             CreateTetromino();
+
+            _matchController.ShowYoursGameField(_clientId);
         }
 
         private void DestroyLine(int y)

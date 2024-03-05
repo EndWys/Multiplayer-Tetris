@@ -24,8 +24,9 @@ public class LocalMatchStarter : MonoBehaviour
 
         _netManager.OnServerStarted += () => _serverStarted = true;
 
-        GameOverScreen.Instance.HideScreen(0f);
-        GameWinnerScreen.Instance.HideScreen(0f);
+        GameOverScreen.Instance.HideScreen();
+        GameWinnerScreen.Instance.HideScreen();
+        FieldArrowScreen.Instance.HideScreen();
         GameScoreScreen.Instance.HideScreen();
     }
 
@@ -54,6 +55,11 @@ public class LocalMatchStarter : MonoBehaviour
                 _isGameStarted = true;
             }
         }
+    }
+
+    public void ShowYoursGameField(int clientId)
+    {
+        _serverMatchController.ShowYoursGameFieldClientRpc(clientId);
     }
 
     public void CallRestart()
