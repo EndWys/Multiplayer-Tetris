@@ -1,81 +1,83 @@
-using TetrisNetwork;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
 
-public class LocalMatchStarter : MonoBehaviour
+namespace TetrisNetwork
 {
-    [SerializeField] ServerMatchController _serverMatchController;
-
-    private bool _serverStarted = false;
-    private bool _isGameStarted = false;
-
-    private NetworkManager _netManager;
-
-    [Inject]
-    public void Construct()
+    public class LocalMatchStarter : MonoBehaviour
     {
+        [SerializeField] ServerMatchController _serverMatchController;
 
-    }
+        private bool _serverStarted = false;
+        private bool _isGameStarted = false;
 
-    private void Start()
-    {
-        _netManager = NetworkManager.Singleton;
+        private NetworkManager _netManager;
 
-        _netManager.OnServerStarted += () => _serverStarted = true;
-
-        GameOverScreen.Instance.HideScreen();
-        GameWinnerScreen.Instance.HideScreen();
-        FieldArrowScreen.Instance.HideScreen();
-        GameScoreScreen.Instance.HideScreen();
-    }
-
-    private void Update()
-    {
-        WaitForMatchReadyToStart();
-    }
-
-    void WaitForMatchReadyToStart()
-    {
-        if (!_netManager.IsServer)
+        [Inject]
+        public void Construct()
         {
-            return;
+
         }
 
-        if (_isGameStarted)
+        private void Start()
         {
-            return;
+            _netManager = NetworkManager.Singleton;
+
+            _netManager.OnServerStarted += () => _serverStarted = true;
+
+            GameOverScreen.Instance.HideScreen();
+            GameWinnerScreen.Instance.HideScreen();
+            FieldArrowScreen.Instance.HideScreen();
+            GameScoreScreen.Instance.HideScreen();
         }
 
-        if (_serverStarted)
+        private void Update()
         {
-            if (_netManager.ConnectedClientsList.Count == 2)
+            WaitForMatchReadyToStart();
+        }
+
+        void WaitForMatchReadyToStart()
+        {
+            if (!_netManager.IsServer)
             {
-                _serverMatchController.StartMatchClientRpc();
-                _isGameStarted = true;
+                return;
+            }
+
+            if (_isGameStarted)
+            {
+                return;
+            }
+
+            if (_serverStarted)
+            {
+                if (_netManager.ConnectedClientsList.Count == 2)
+                {
+                    _serverMatchController.StartMatchClientRpc();
+                    _isGameStarted = true;
+                }
             }
         }
-    }
 
-    public void ShowYoursGameField(int clientId)
-    {
-        _serverMatchController.ShowYoursGameFieldClientRpc(clientId);
-    }
+        public void ShowYoursGameField(int clientId)
+        {
+            _serverMatchController.ShowYoursGameFieldClientRpc(clientId);
+        }
 
-    public void CallRestart()
-    {
-        _serverMatchController.RestartGameServerRpc();
-    }
+        public void CallRestart()
+        {
+            _serverMatchController.RestartGameServerRpc();
+        }
 
-    public void OnDestroyLine(int poitns, int clientId)
-    {
-        _serverMatchController.AddPointsClientRpc(poitns, clientId);
-        _serverMatchController.CreateLineForOtherPlayer(GameField.HEIGHT - 1, clientId);
-    }
+        public void OnDestroyLine(int poitns, int clientId)
+        {
+            _serverMatchController.AddPointsClientRpc(poitns, clientId);
+            _serverMatchController.CreateLineForOtherPlayer(GameField.HEIGHT - 1, clientId);
+        }
 
-    public void OnGameOver(int clientId)
-    {
-        _serverMatchController.OnGameOverServerRpc();
-        _serverMatchController.OnGameOverClientRpc(clientId);
+        public void OnGameOver(int clientId)
+        {
+            _serverMatchController.OnGameOverServerRpc();
+            _serverMatchController.OnGameOverClientRpc(clientId);
+        }
     }
 }
