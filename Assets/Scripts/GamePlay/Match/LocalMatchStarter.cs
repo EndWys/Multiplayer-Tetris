@@ -74,6 +74,16 @@ namespace TetrisNetwork
             _serverMatchController.CreateLineForOtherPlayer(GameField.HEIGHT - 1, clientId);
         }
 
+        public void OnPlaceTetramino()
+        {
+            _serverMatchController.PlaceTetrominoClientRpc();
+        }
+
+        public void OnDetonateBomb()
+        {
+            _serverMatchController.DetonateBombClientRpc();
+        }
+
         public void OnGameOver(int clientId)
         {
             _serverMatchController.OnGameOverServerRpc();
