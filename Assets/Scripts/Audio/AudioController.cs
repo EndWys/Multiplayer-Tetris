@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace TetrisNetwork
@@ -9,6 +10,8 @@ namespace TetrisNetwork
 
         private static AudioController _instance;
         public static AudioController Instance => _instance;
+
+        private FieldInfo[] _fields;
 
         private GameObject _targetGameObject;
 
@@ -23,12 +26,34 @@ namespace TetrisNetwork
         private static Sounds _sounds;
         public static Sounds Sounds => _sounds;
 
+        private static Music _music;
+        public static Music Music => _music;
+
         private static AudioListener _audioListener;
         public static AudioListener AudioListener => _audioListener;
 
         public void Initialize(AudioSettings settings, GameObject targetGameObject)
         {
+            _instance = this;
             _targetGameObject = targetGameObject;
+
+            _fields = typeof(Music).GetFields();
+            _musicAudioClips = new AudioClip[_fields.Length];
+
+            for (int i = 0; i < _fields.Length; i++)
+            {
+                _musicAudioClips[i] = _fields[i].GetValue(settings.Music) as AudioClip;
+            }
+
+            _music = settings.Music;
+            _sounds = settings.Sounds;
+
+            _audioSources.Clear();
+
+            for (int i = 0; i < AUDIO_SOURCES_AMOUNT; i++)
+            {
+                _audioSources.Add(CreateAudioSourceObject(false));
+            }
         }
 
         public static void CreateAudioListener()
@@ -120,8 +145,6 @@ namespace TetrisNetwork
 
         public static void SetSourceDefaultSettings(AudioSource source, ClipType type = ClipType.Sound)
         {
-            float volume = 1f;
-
             if (type == ClipType.Sound)
             {
                 source.loop = false;
@@ -133,7 +156,7 @@ namespace TetrisNetwork
 
             source.clip = null;
 
-            source.volume = volume;
+            source.volume = 1.0f;
             source.pitch = 1.0f;
             source.spatialBlend = 0;
             source.mute = false;

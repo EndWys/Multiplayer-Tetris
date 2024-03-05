@@ -1,7 +1,9 @@
 using UnityEngine;
 
+
 namespace TetrisNetwork
 {
+    [CreateAssetMenu(fileName = "Audio Settings", menuName = "Settings/Audio Settings")]
     public class AudioSettings : ScriptableObject
     {
         [SerializeField] Music _music;
