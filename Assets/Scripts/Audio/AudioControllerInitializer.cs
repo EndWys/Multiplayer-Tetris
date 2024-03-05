@@ -8,6 +8,7 @@ public class AudioControllerInitializer : MonoBehaviour
     [SerializeField] AudioSettings _audioSettings;
     [SerializeField] GameObject _audioSourcesParent;
 
+
     [Inject]
     public void Construct()
     {

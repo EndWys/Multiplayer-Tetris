@@ -50,6 +50,8 @@ namespace TetrisNetwork
 
         public void StartGame(int clientId)
         {
+            AudioController.PlayMusic(AudioController.Music._gameMusic);
+
             _clientId = clientId;
 
             ConnectInput();
