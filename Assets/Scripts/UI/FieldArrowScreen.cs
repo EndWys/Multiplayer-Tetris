@@ -7,7 +7,7 @@ namespace TetrisNetwork
         [SerializeField] RectTransform _arrow;
         public override void ShowScreen(float timeToTween = TIME_TO_TWEEN)
         {
-            base.ShowScreen(timeToTween);
+            InternalAlphaScreen(timeToTween, 1f, () => { });
         }
 
         public void UpdateArrow(int clientId)
