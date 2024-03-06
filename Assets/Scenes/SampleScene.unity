@@ -1313,6 +1313,7 @@ MonoBehaviour:
   autoInjectGameObjects:
   - {fileID: 3622690026685698285}
   - {fileID: 921635603}
+  - {fileID: 592519356}
   _playerInputController: {fileID: 1719876063}
   _localMatchStarter: {fileID: 1852265175}
   _audioControllerInitializer: {fileID: 414951746}
@@ -4731,5 +4732,5 @@ SceneRoots:
   - {fileID: 414951745}
   - {fileID: 977709270}
   - {fileID: 1027407783}
-  - {fileID: 511816908}
   - {fileID: 592519357}
+  - {fileID: 511816908}

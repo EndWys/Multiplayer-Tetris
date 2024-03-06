@@ -13,6 +13,9 @@ namespace TetrisNetwork
 
         protected override void Configure(IContainerBuilder builder)
         {
+            builder.Register<EventBus>(Lifetime.Singleton).AsSelf();
+            builder.Register<AudioController>(Lifetime.Singleton).AsSelf();
+            builder.Register<AudioEventReciver>(Lifetime.Singleton).AsSelf();
             builder.RegisterComponent(_playerInputController);
             builder.RegisterComponent(_localMatchStarter);
             builder.RegisterComponent(_audioControllerInitializer);

@@ -1,3 +1,5 @@
+using VContainer;
+
 namespace TetrisNetwork
 {
     public class AudioEventReciver : IEventReceiver<MatchStartEvent>, IEventReceiver<DeleteLineEvent>,
@@ -5,12 +7,13 @@ namespace TetrisNetwork
     {
         public UniqueId Id { get; } = new UniqueId();
 
-        public void Initialize()
+        [Inject]
+        public AudioEventReciver(EventBus eventBus)
         {
-            EventBusHolder.EventBus.Register(this as IEventReceiver<MatchStartEvent>);
-            EventBusHolder.EventBus.Register(this as IEventReceiver<DeleteLineEvent>);
-            EventBusHolder.EventBus.Register(this as IEventReceiver<DetonateBombEvent>);
-            EventBusHolder.EventBus.Register(this as IEventReceiver<PlaceTerominoEvent>);
+            eventBus.Register(this as IEventReceiver<MatchStartEvent>);
+            eventBus.Register(this as IEventReceiver<DeleteLineEvent>);
+            eventBus.Register(this as IEventReceiver<DetonateBombEvent>);
+            eventBus.Register(this as IEventReceiver<PlaceTerominoEvent>);
         }
 
         public void OnEvent(MatchStartEvent @event)
