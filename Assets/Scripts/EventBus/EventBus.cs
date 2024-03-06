@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using VContainer;
 
 namespace TetrisNetwork
 {
@@ -9,6 +10,7 @@ namespace TetrisNetwork
         private readonly Dictionary<Type, List<WeakReference<IBaseEventReceiver>>> _receivers;
         private readonly Dictionary<string, WeakReference<IBaseEventReceiver>> _receiverHashToReference;
 
+        [Inject]
         public EventBus()
         {
             _receivers = new Dictionary<Type, List<WeakReference<IBaseEventReceiver>>>();

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using VContainer;
 
 namespace TetrisNetwork
 {
@@ -32,15 +33,12 @@ namespace TetrisNetwork
         private static AudioListener _audioListener;
         public static AudioListener AudioListener => _audioListener;
 
-        private AudioEventReciver _eventReciver;
+        [Inject] private AudioEventReciver _eventReciver;
 
         public void Initialize(AudioSettings settings, GameObject targetGameObject)
         {
             _instance = this;
             _targetGameObject = targetGameObject;
-
-            _eventReciver = new AudioEventReciver();
-            _eventReciver.Initialize();
 
             _fields = typeof(Music).GetFields();
             _musicAudioClips = new AudioClip[_fields.Length];

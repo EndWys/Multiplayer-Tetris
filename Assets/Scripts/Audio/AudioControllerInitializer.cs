@@ -10,9 +10,8 @@ namespace TetrisNetwork
         [SerializeField] GameObject _audioSourcesParent;
 
         [Inject]
-        public void Construct()
+        public void Construct(AudioController controller)
         {
-            var controller = new AudioController();
             controller.Initialize(_audioSettings, _audioSourcesParent);
         }
     }

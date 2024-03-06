@@ -1,12 +1,13 @@
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
+using VContainer.Unity;
 
 namespace TetrisNetwork
 {
-    public class LocalMatchStarter : MonoBehaviour
+    public class LocalMatchStarter : IStartable, ITickable
     {
-        [SerializeField] ServerMatchController _serverMatchController;
+        private ServerMatchController _serverMatchController;
 
         private bool _serverStarted = false;
         private bool _isGameStarted = false;
@@ -14,12 +15,12 @@ namespace TetrisNetwork
         private NetworkManager _netManager;
 
         [Inject]
-        public void Construct()
+        public LocalMatchStarter(ServerMatchController serverMatchController)
         {
-
+            _serverMatchController = serverMatchController;
         }
 
-        private void Start()
+        void IStartable.Start()
         {
             _netManager = NetworkManager.Singleton;
 
@@ -31,7 +32,7 @@ namespace TetrisNetwork
             GameScoreScreen.Instance.HideScreen();
         }
 
-        private void Update()
+        public void Tick()
         {
             WaitForMatchReadyToStart();
         }
