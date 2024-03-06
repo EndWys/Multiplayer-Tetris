@@ -50,8 +50,6 @@ namespace TetrisNetwork
 
         public void StartGame(int clientId)
         {
-            AudioController.PlayMusic(AudioController.Music._gameMusic);
-
             _clientId = clientId;
 
             ConnectInput();
@@ -109,10 +107,9 @@ namespace TetrisNetwork
 
             _gameField = new GameField(_gameSettings);
 
-            _gameField.OnCurrentPieceReachBottom = TetrominoPlaced;
+            _gameField.OnCurrentPieceReachBottom = CreateTetromino;
             _gameField.OnGameOver = OnGameOver;
             _gameField.OnDestroyLine = DestroyLine;
-            _gameField.OnDetanateBomb = _matchController.OnDetonateBomb;
 
         }
 
@@ -166,12 +163,6 @@ namespace TetrisNetwork
         public void SetGameOver()
         {
             _gameIsOver = true;
-        }
-
-        private void TetrominoPlaced()
-        {
-            _matchController.OnPlaceTetramino();
-            CreateTetromino();
         }
 
         private void CreateTetromino()

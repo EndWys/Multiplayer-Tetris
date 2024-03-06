@@ -53,6 +53,7 @@ namespace TetrisNetwork
                 if (_netManager.ConnectedClientsList.Count == 2)
                 {
                     _serverMatchController.StartMatchClientRpc();
+                    ServerEventSender.Instance.SendEventClientRpc(GameEventType.MatchStart);
                     _isGameStarted = true;
                 }
             }
@@ -74,15 +75,6 @@ namespace TetrisNetwork
             _serverMatchController.CreateLineForOtherPlayer(GameField.HEIGHT - 1, clientId);
         }
 
-        public void OnPlaceTetramino()
-        {
-            _serverMatchController.PlaceTetrominoClientRpc();
-        }
-
-        public void OnDetonateBomb()
-        {
-            _serverMatchController.DetonateBombClientRpc();
-        }
 
         public void OnGameOver(int clientId)
         {
