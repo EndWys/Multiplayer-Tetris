@@ -19,7 +19,6 @@ namespace TetrisNetwork
 
         public Action OnCurrentPieceReachBottom;
         public Action OnGameOver;
-        public Action OnDetanateBomb;
         public Action<int> OnDestroyLine;
 
         public Action OnMomentToCreateLine;
@@ -145,7 +144,7 @@ namespace TetrisNetwork
 
         private void PlaceTetrimino(Tetromino tetromino)
         {
-            AudioController.PlaySound(AudioController.Sounds.TetrominoPlaceSound);
+            ServerEventSender.Instance.SendEventClientRpc(GameEventType.DetonateBomb);
             var tetrotminoPosition = tetromino.CurrentPosition;
             for (int i1 = tetrotminoPosition.x, i2 = 0; i1 < tetrotminoPosition.x + Tetromino.BLOCK_AREA; i1++, i2++)
             {
@@ -181,7 +180,7 @@ namespace TetrisNetwork
         private void DetanateBomb(int y)
         {
             OnMomentForDetanateBomb = delegate { };
-            OnDetanateBomb?.Invoke();
+            ServerEventSender.Instance.SendEventClientRpc(GameEventType.DetonateBomb);
             DeleteLine(y);
         }
 
@@ -237,7 +236,7 @@ namespace TetrisNetwork
 
                 if (i == WIDTH)
                 {
-                    AudioController.PlaySound(AudioController.Sounds.DeleteLineSound);
+                    ServerEventSender.Instance.SendEventClientRpc(GameEventType.DeleteLine);
                     DeleteLine(j);
                 }
             }
