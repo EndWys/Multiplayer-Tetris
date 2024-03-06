@@ -24,7 +24,7 @@ namespace TetrisNetwork {
 #if UNITY_EDITOR
             _inputController = _editroGameInput;
 #else
-        _inputController = _editroGameInput;
+        _inputController = _buildGameInput;
 #endif
             _inputController.Initialize();
 
