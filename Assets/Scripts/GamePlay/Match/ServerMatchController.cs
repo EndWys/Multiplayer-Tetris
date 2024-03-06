@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
+using VContainer;
 
 namespace TetrisNetwork
 {
@@ -10,6 +11,9 @@ namespace TetrisNetwork
         [SerializeField] List<GameController> _gameControllers;
 
         NetworkManager netManager;
+
+        [Inject]
+        public ServerMatchController() { }
 
         private void Start()
         {

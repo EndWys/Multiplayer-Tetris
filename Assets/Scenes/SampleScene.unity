@@ -1228,7 +1228,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1852265175}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: LocalMatchStarter, Assembly-CSharp
         m_MethodName: CallRestart
         m_Mode: 1
@@ -1315,7 +1315,7 @@ MonoBehaviour:
   - {fileID: 921635603}
   - {fileID: 592519356}
   _playerInputController: {fileID: 1719876063}
-  _localMatchStarter: {fileID: 1852265175}
+  _serverMatchController: {fileID: 783354356}
   _audioControllerInitializer: {fileID: 414951746}
   _busHolder: {fileID: 1027407782}
 --- !u!4 &511816908
@@ -1763,7 +1763,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1852265175}
+      - m_Target: {fileID: 0}
         m_TargetAssemblyTypeName: LocalMatchStarter, Assembly-CSharp
         m_MethodName: CallRestart
         m_Mode: 1
@@ -4009,7 +4009,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1852265176}
-  - component: {fileID: 1852265175}
   m_Layer: 0
   m_Name: LocalMatchStarter
   m_TagString: Untagged
@@ -4017,19 +4016,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1852265175
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1852265174}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9663213a72be54842820ee66090a89ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _serverMatchController: {fileID: 783354356}
 --- !u!4 &1852265176
 Transform:
   m_ObjectHideFlags: 0
