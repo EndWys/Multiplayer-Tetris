@@ -14,33 +14,35 @@ namespace TetrisNetwork
         [SerializeField] GameObject _backgroundTile;
         [SerializeField] Transform _tetrominoParent;
 
-        [SerializeField] float timeToStep = 2f;
-
         [SerializeField] PlayerInputConnenctor _inputConnector;
 
         private FieldBackgroundBuilder _fieldBackground;
 
         private GameSettings _gameSettings;
         private GameField _gameField;
-        private List<TetrominoView> _tetrominos = new List<TetrominoView>();
-
-        private float _timer = 0f;
 
         private TetrominoView _preview;
-        private bool _refreshPreview;
-        private bool _gameIsOver;
-        private bool _isConnected = false;
+
+        private List<TetrominoView> _tetrominos = new List<TetrominoView>();
 
         private Pooling<TetrominoBlockView> _blockPool = new Pooling<TetrominoBlockView>();
         private Pooling<TetrominoView> _tetrominoPool = new Pooling<TetrominoView>();
         private Pooling<BombView> _bombPool = new Pooling<BombView>();
 
-        private Tetromino _currentTetromino { get; set; } = null;
-
         private LocalMatchStarter _matchController;
+
+        private bool _refreshPreview;
+        private bool _gameIsOver;
+        private bool _isConnected = false;
+
+        private float _timeToStep = 2f;
+
+        private float _timer = 0f;
 
         private int _clientId;
         public int ClientId => _clientId;
+
+        private Tetromino _currentTetromino { get; set; } = null;
 
         [Inject]
         public void Construct(LocalMatchStarter matchStarter)
@@ -57,6 +59,8 @@ namespace TetrisNetwork
             InitializePools();
 
             SetGameSettings();
+
+            BuildFieldBackground();
 
             InitializeGameField();
 
@@ -89,7 +93,6 @@ namespace TetrisNetwork
 
         private void SetGameSettings()
         {
-
             var settingsFile = Resources.Load<TextAsset>(JSON_PATH);
             if (settingsFile == null)
                 throw new System.Exception(string.Format("GameSettings.json could not be found inside {0}. Create one in Window>GameSettings Creator.", JSON_PATH));
@@ -97,35 +100,42 @@ namespace TetrisNetwork
             var json = settingsFile.text;
             _gameSettings = JsonUtility.FromJson<GameSettings>(json);
             _gameSettings.CheckValidSettings();
-            timeToStep = _gameSettings.TimeToStep;
+            _timeToStep = _gameSettings.TimeToStep;
+        }
+
+        private void BuildFieldBackground()
+        {
+            _fieldBackground = new FieldBackgroundBuilder(_backgroundTile, _tetrominoParent);
+            _fieldBackground.BuildFieldBackground();
         }
 
         private void InitializeGameField()
         {
-            _fieldBackground = new FieldBackgroundBuilder(_backgroundTile, _tetrominoParent);
-            _fieldBackground.BuildFieldBackground();
-
             _gameField = new GameField(_gameSettings);
 
-            _gameField.OnCurrentPieceReachBottom = CreateTetromino;
+            _gameField.OnCurrentPieceReachBottom = SpawnNewTetromino;
             _gameField.OnGameOver = OnGameOver;
             _gameField.OnDestroyLine = DestroyLine;
-
         }
 
         public void RestartGame()
         {
-            _gameIsOver = false;
-            _timer = 0f;
-
             _gameField.Restart();
+
             _tetrominoPool.ReleaseAll();
             _bombPool.ReleaseAll();
             _tetrominos.Clear();
 
-            CreateTetromino();
+            StartNewGame();
+        }
 
+        private void StartNewGame()
+        {
+            _gameIsOver = false;
+            _timer = 0f;
             _matchController.ShowYoursGameField(_clientId);
+
+            SpawnNewTetromino();
         }
 
         private void DestroyLine(int y)
@@ -143,16 +153,16 @@ namespace TetrisNetwork
 
         public void CreateBombLine(int y)
         {
+            int bombX = RandomGenerator.random.Next(0, GameField.WIDTH);
+            var tetrominoLine = CreateLineOfOneBlockTetrominos(bombX);
+
             _gameField.OnMomentToCreateLine = delegate { };
 
             _tetrominos.ForEach(x => x.OnCreateNewLine(y));
 
-            int bombX = RandomGenerator.random.Next(0, GameField.WIDTH);
-            var tetrominoLine = CreateLineOfOneBlockTetrominos(bombX);
-
             _gameField.CreateBombLine(y, bombX, tetrominoLine);
 
-            _refreshPreview = true;
+            SetPreviewAsDirty();
         }
 
         private void OnGameOver()
@@ -165,7 +175,7 @@ namespace TetrisNetwork
             _gameIsOver = true;
         }
 
-        private void CreateTetromino()
+        private void SpawnNewTetromino()
         {
             if (_currentTetromino != null)
                 _currentTetromino.IsLocked = true;
@@ -177,11 +187,22 @@ namespace TetrisNetwork
 
             _currentTetromino = tetromino;
 
+            SpawnTetrominoPriview(tetromino);
+        }
+
+        private void SpawnTetrominoPriview(Tetromino realTetromino)
+        {
             if (_preview != null)
                 _tetrominoPool.Release(_preview);
 
             _preview = _tetrominoPool.Collect();
-            _preview.InitiateTetromino(tetromino, true);
+            _preview.InitiateTetromino(realTetromino, true);
+
+            SetPreviewAsDirty();
+        }
+
+        private void SetPreviewAsDirty()
+        {
             _refreshPreview = true;
         }
 
@@ -237,39 +258,15 @@ namespace TetrisNetwork
             _inputConnector.ConnectAction(InputT.MoveDown, MoveTetrominoDown);
         }
 
-        public void Update()
+        private void Update()
         {
-            if (!_isConnected) return;
-
-            if (_gameIsOver) return;
-
-            _timer += Time.deltaTime;
-            if (_timer > timeToStep)
-            {
-                _timer = 0;
-                _gameField.Step();
-            }
-
-            if (_currentTetromino == null) return;
-
-            if (_refreshPreview)
-            {
-                var move = new OnFieldMovement(_currentTetromino,_currentTetromino.CurrentRotation,
-                    _currentTetromino.CurrentPosition.x,_currentTetromino.CurrentPosition.y);
-
-                while (_gameField.IsPossibleMovement(move))
-                {
-                    move.Y++;
-                }
-
-                _preview.ForcePosition(move.X, move.Y - 1);
-                _refreshPreview = false;
-            }
+            TryToMakeStep();
+            TryToUpdateTetrominoPreview();
         }
 
-        void RotateTetrominoRight()
+        private void RotateTetrominoRight()
         {
-            if (_gameIsOver || _currentTetromino == null) return;
+            if (!IsValidGame()) return;
 
             var move = new OnFieldMovement(_currentTetromino, _currentTetromino.NextRotation,
                 _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y);
@@ -277,13 +274,14 @@ namespace TetrisNetwork
             if (_gameField.IsPossibleMovement(move))
             {
                 _gameField.MakeMove(move);
-                _refreshPreview = true;
+
+                SetPreviewAsDirty();
             }
         }
 
-        void RotateTetrominoLeft()
+        private void RotateTetrominoLeft()
         {
-            if (_gameIsOver || _currentTetromino == null) return;
+            if (!IsValidGame()) return;
 
             var move = new OnFieldMovement(_currentTetromino, _currentTetromino.PreviousRotation,
                 _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y);
@@ -291,13 +289,13 @@ namespace TetrisNetwork
             if (_gameField.IsPossibleMovement(move))
             {
                 _gameField.MakeMove(move);
-                _refreshPreview = true;
+                SetPreviewAsDirty();
             }
         }
 
-        void MoveTetrominoRight()
+        private void MoveTetrominoRight()
         {
-            if (_gameIsOver || _currentTetromino == null) return;
+            if (!IsValidGame()) return;
 
             var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
                 _currentTetromino.CurrentPosition.x + 1, _currentTetromino.CurrentPosition.y);
@@ -305,13 +303,13 @@ namespace TetrisNetwork
             if (_gameField.IsPossibleMovement(move))
             {
                 _gameField.MakeMove(move);
-                _refreshPreview = true;
+                SetPreviewAsDirty();
             }
         }
 
-        void MoveTetrominoLeft()
+        private void MoveTetrominoLeft()
         {
-            if (_gameIsOver || _currentTetromino == null) return;
+            if (!IsValidGame()) return;
 
             var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
                 _currentTetromino.CurrentPosition.x - 1, _currentTetromino.CurrentPosition.y);
@@ -319,13 +317,13 @@ namespace TetrisNetwork
             if (_gameField.IsPossibleMovement(move))
             {
                 _gameField.MakeMove(move);
-                _refreshPreview = true;
+                SetPreviewAsDirty();
             }
         }
 
-        void MoveTetrominoDown()
+        private void MoveTetrominoDown()
         {
-            if (_gameIsOver || _currentTetromino == null) return;
+            if (!IsValidGame()) return;
 
             var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
                                 _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y + 1);
@@ -334,6 +332,44 @@ namespace TetrisNetwork
             {
                 _gameField.MakeMove(move);
             }
+        }
+
+        private void TryToUpdateTetrominoPreview()
+        {
+            if (!IsValidGame()) return;
+
+            if (_refreshPreview)
+            {
+                var move = new OnFieldMovement(_currentTetromino, _currentTetromino.CurrentRotation,
+                    _currentTetromino.CurrentPosition.x, _currentTetromino.CurrentPosition.y);
+
+                while (_gameField.IsPossibleMovement(move))
+                {
+                    move.Y++;
+                }
+
+                _preview.ForcePosition(move.X, move.Y - 1);
+
+                SetPreviewAsDirty();
+            }
+        }
+
+        private void TryToMakeStep()
+        {
+            if (!IsValidGame()) return;
+
+            _timer += Time.deltaTime;
+
+            if (_timer > _timeToStep)
+            {
+                _timer = 0;
+                _gameField.Step();
+            }
+        }
+
+        private bool IsValidGame()
+        {
+            return _isConnected && !_gameIsOver && _currentTetromino != null;
         }
     }
 }
