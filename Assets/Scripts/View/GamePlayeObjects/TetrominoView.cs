@@ -16,6 +16,7 @@ namespace TetrisNetwork
         public Pooling<TetrominoBlockView> BlockPool;
 
         protected readonly List<TetrominoBlockView> _pieces = new List<TetrominoBlockView>();
+
         private Color _blockColor;
         private RectTransform _rectTransform;
 
@@ -40,7 +41,7 @@ namespace TetrisNetwork
 
         public virtual void InitiateTetromino(Tetromino tetrimino, bool isPreview = false)
         {
-            var ghostColor = new Color(1, 1, 1, 0.5f);
+            Color ghostColor = new(1, 1, 1, 0.5f);
 
             CurrentTetromino = tetrimino;
 
