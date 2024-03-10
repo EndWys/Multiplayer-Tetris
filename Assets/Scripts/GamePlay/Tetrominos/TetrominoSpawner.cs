@@ -7,12 +7,12 @@ namespace TetrisNetwork
 {
     public class TetrominoSpawner
     {
-        private bool _controledRandom;
-
         private List<TetrominoSpecs> _allTetriminos = new List<TetrominoSpecs>();
         private List<TetrominoSpecs> _availableTetriminos = new List<TetrominoSpecs>();
 
         private TetrominoSpecs _oneBlockSpec = OneBlockSpecs();
+
+        private bool _controledRandom;
 
         public TetrominoSpawner(bool controledRandom, List<TetrominoSpecs> allTetriminos)
         {
@@ -22,6 +22,8 @@ namespace TetrisNetwork
 
         public Tetromino GetRandomTetromino()
         {
+            int randomTetrominoIndex = 0;
+
             if (_controledRandom)
             {
                 if (_availableTetriminos.Count == 0)
@@ -29,12 +31,17 @@ namespace TetrisNetwork
                     _availableTetriminos = GetFullTetrominoBaseList();
                 }
 
-                var tetrominoSpecs = _availableTetriminos[RandomGenerator.random.Next(0, _availableTetriminos.Count)];
-                _availableTetriminos.Remove(tetrominoSpecs);
-                return new Tetromino(tetrominoSpecs);
+                randomTetrominoIndex = RandomGenerator.random.Next(0, _availableTetriminos.Count);
+
+                var availableTetrominoSpecs = _availableTetriminos[randomTetrominoIndex];
+                _availableTetriminos.Remove(availableTetrominoSpecs);
+                return new Tetromino(availableTetrominoSpecs);
             }
-         
-            return new Tetromino(_allTetriminos[RandomGenerator.random.Next(0, _allTetriminos.Count)]);
+
+            randomTetrominoIndex = RandomGenerator.random.Next(0, _allTetriminos.Count);
+            var randomTetrominoSpecs = _allTetriminos[randomTetrominoIndex];
+
+            return new Tetromino(randomTetrominoSpecs);
         }
 
         public Tetromino GetOneBlockTetromino()

@@ -26,6 +26,11 @@ namespace TetrisNetwork
 
             _netManager.OnServerStarted += () => _serverStarted = true;
 
+            HideUI();
+        }
+
+        void HideUI()
+        {
             GameOverScreen.Instance.HideScreen();
             GameWinnerScreen.Instance.HideScreen();
             FieldArrowScreen.Instance.HideScreen();
@@ -72,8 +77,10 @@ namespace TetrisNetwork
 
         public void OnDestroyLine(int poitns, int clientId)
         {
+            const int LOWES_POINT = GameField.HEIGHT - 1;
+
             _serverMatchController.AddPointsClientRpc(poitns, clientId);
-            _serverMatchController.CreateLineForOtherPlayer(GameField.HEIGHT - 1, clientId);
+            _serverMatchController.CreateLineForOtherPlayer(LOWES_POINT, clientId);
         }
 
 

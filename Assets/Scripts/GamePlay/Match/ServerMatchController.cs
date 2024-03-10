@@ -10,7 +10,7 @@ namespace TetrisNetwork
     {
         [SerializeField] List<GameController> _gameControllers;
 
-        NetworkManager netManager;
+        private NetworkManager netManager;
 
         [Inject]
         public ServerMatchController() { }
