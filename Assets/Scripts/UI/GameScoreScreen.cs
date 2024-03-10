@@ -6,6 +6,7 @@ namespace TetrisNetwork
 {
     public class GameScoreScreen : ScoreScreenBase<GameScoreScreen>
     {
+        const float SCORE_APPEARANCE_TIME = 2F;
         public int PlayerScore => _internalPoints;
 
         private int _internalPoints = 0;
@@ -41,7 +42,7 @@ namespace TetrisNetwork
 
         private IEnumerator WaitAndHide()
         {
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(SCORE_APPEARANCE_TIME);
             HideScreen();
         }
 
