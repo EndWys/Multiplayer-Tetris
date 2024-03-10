@@ -20,15 +20,15 @@ namespace TetrisNetwork
         public int[][][] BlockPositions { get; private set; }
 
         private Vector2Int[] _initialPosition;
-        private Vector2Int _currentPosition;
 
+        private Vector2Int _currentPosition;
         public Vector2Int CurrentPosition
         {
             set
             {
                 _currentPosition = value;
-                if (OnChangePosition != null && !IsLocked)
-                    OnChangePosition.Invoke();
+                if (!IsLocked)
+                    OnChangePosition?.Invoke();
             }
             get
             {
@@ -42,8 +42,7 @@ namespace TetrisNetwork
             set
             {
                 _currentRotation = value;
-                if (OnChangeRotation != null)
-                    OnChangeRotation.Invoke();
+                OnChangeRotation?.Invoke();
             }
             get
             {

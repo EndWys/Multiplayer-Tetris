@@ -35,8 +35,6 @@ namespace TetrisNetwork
                 _gameField[i] = new int[HEIGHT];
             }
 
-            Restart();
-
             _spawner = new TetrominoSpawner(gameSettings.ControledRandomMode, gameSettings.Pieces);
         }
 
@@ -127,8 +125,7 @@ namespace TetrisNetwork
 
                     if (j1 >= 0)
                     {
-                        if ((tetromino.ValidBlock(rotation, j2, i2)) &&
-                            (!IsFreeBlock(i1, j1)))
+                        if (tetromino.ValidBlock(rotation, j2, i2) && !IsFreeBlock(i1, j1))
                             return false;
                     }
                 }
@@ -180,8 +177,8 @@ namespace TetrisNetwork
         private void DetanateBomb(int y)
         {
             OnMomentForDetanateBomb = delegate { };
-            ServerEventSender.Instance.SendEventClientRpc(GameEventType.DetonateBomb);
             DeleteLine(y);
+            ServerEventSender.Instance.SendEventClientRpc(GameEventType.DetonateBomb);
         }
 
         public void CreateBombLine(int y,int bombX, List<Tetromino> tetrominos)
