@@ -33,8 +33,6 @@ namespace TetrisNetwork
         private static AudioListener _audioListener;
         public static AudioListener AudioListener => _audioListener;
 
-        [Inject] private AudioEventReciver _eventReciver;
-
         public void Initialize(AudioSettings settings, GameObject targetGameObject)
         {
             _instance = this;
