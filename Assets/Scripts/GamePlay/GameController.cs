@@ -113,6 +113,8 @@ namespace TetrisNetwork
         {
             _gameField = new GameField(_gameSettings);
 
+            _gameField.Restart();
+
             _gameField.OnCurrentPieceReachBottom = SpawnNewTetromino;
             _gameField.OnGameOver = OnGameOver;
             _gameField.OnDestroyLine = DestroyLine;

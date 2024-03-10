@@ -3,7 +3,9 @@ using UnityEngine;
 namespace TetrisNetwork {
     public class FieldBackgroundBuilder
     {
-        const int BACKGROUND_SIZE_OFFSET = 4;
+        private const int BACKGROUND_LOWEST_POINT_GLOBAL = -GameField.HEIGHT;
+        private const int BACKGROUND_HIGH_OFFSET = 4;
+        private const int BACKGROUND_TILE_DEPTH = 2;
 
         private Pooling<BackgroundTileView> _tilePool = new Pooling<BackgroundTileView>();
 
@@ -17,10 +19,10 @@ namespace TetrisNetwork {
         {
             for (int i = 0; i < GameField.WIDTH; i++)
             {
-                for (int j = BACKGROUND_SIZE_OFFSET; j > -GameField.HEIGHT; j--)
+                for (int j = BACKGROUND_HIGH_OFFSET; j > BACKGROUND_LOWEST_POINT_GLOBAL; j--)
                 {
                     var tile = _tilePool.Collect();
-                    tile.CachedTransform.localPosition = new Vector3(i, j, +2);
+                    tile.CachedTransform.localPosition = new Vector3(i, j, BACKGROUND_TILE_DEPTH);
                 }
             }
         }
